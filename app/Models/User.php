@@ -16,7 +16,7 @@ class User extends Authenticatable implements JWTSubject
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role_id'];
+    protected $fillable = ['name', 'email', 'password', 'role_id', 'is_approved', 'is_suspended'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -29,8 +29,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'role_id' => 'integer',
+            'password'          => 'hashed',
+            'role_id'           => 'integer',
+            'is_approved'       => 'boolean',
+            'is_suspended'      => 'boolean',
         ];
     }
 

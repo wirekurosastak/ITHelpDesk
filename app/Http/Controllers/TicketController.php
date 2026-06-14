@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\AuthorizesTicketAccess;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Models\Ticket;
@@ -9,10 +10,13 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class TicketController extends Controller
 {
+    use AuthorizesTicketAccess;
+
     public function index(): JsonResponse
     {
         $user = auth('api')->user();
@@ -94,17 +98,20 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket): JsonResponse
     {
+        // Collect file paths BEFORE cascading DB delete wipes the attachment rows
+        $filePaths = $ticket->attachments()->pluck('file_path')->all();
+
         $ticket->delete();
+
+        // Remove the actual files from storage to prevent leaking orphaned files
+        foreach ($filePaths as $path) {
+            Storage::delete($path);
+        }
 
         return response()->json(null, 204);
     }
 
-    private function authorizeTicketAccess(Ticket $ticket, User $user): void
-    {
-        if ($user->isEmployee() && $ticket->user_id !== $user->id) {
-            throw new AuthorizationException('You can only access your own tickets.');
-        }
-    }
+    // authorizeTicketAccess() is provided by the AuthorizesTicketAccess trait
 
     private function authorizeTicketUpdate(Ticket $ticket, User $user): void
     {

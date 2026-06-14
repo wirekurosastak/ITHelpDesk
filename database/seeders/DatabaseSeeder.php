@@ -34,27 +34,30 @@ class DatabaseSeeder extends Seeder
         $employee = User::updateOrCreate(
             ['email' => 'employee@company.com'],
             [
-                'name' => 'John Doe',
-                'password' => Hash::make('password'),
-                'role_id' => Role::EMPLOYEE_ID,
+                'name'        => 'Beadandó Ötös',
+                'password'    => Hash::make('password'),
+                'role_id'     => Role::EMPLOYEE_ID,
+                'is_approved' => true,
             ]
         );
 
         $support = User::updateOrCreate(
             ['email' => 'it@company.com'],
             [
-                'name' => 'Jane Smith (IT)',
-                'password' => Hash::make('password'),
-                'role_id' => Role::IT_SUPPORT_ID,
+                'name'        => 'Szőllősi Martin',
+                'password'    => Hash::make('password'),
+                'role_id'     => Role::IT_SUPPORT_ID,
+                'is_approved' => true,
             ]
         );
 
         User::updateOrCreate(
             ['email' => 'admin@company.com'],
             [
-                'name' => 'Admin User',
-                'password' => Hash::make('password'),
-                'role_id' => Role::ADMIN_ID,
+                'name'        => 'Balla Tamás',
+                'password'    => Hash::make('password'),
+                'role_id'     => Role::ADMIN_ID,
+                'is_approved' => true,
             ]
         );
 

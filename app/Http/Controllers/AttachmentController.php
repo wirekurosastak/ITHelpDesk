@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\AuthorizesTicketAccess;
 use App\Http\Requests\StoreAttachmentRequest;
 use App\Models\Attachment;
 use App\Models\Ticket;
-use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttachmentController extends Controller
 {
+    use AuthorizesTicketAccess;
+
     public function store(StoreAttachmentRequest $request, Ticket $ticket): JsonResponse
     {
         $user = auth('api')->user();
@@ -51,10 +52,5 @@ class AttachmentController extends Controller
         return Storage::download($attachment->file_path, $attachment->original_name);
     }
 
-    private function authorizeTicketAccess(Ticket $ticket, User $user): void
-    {
-        if ($user->isEmployee() && $ticket->user_id !== $user->id) {
-            throw new AuthorizationException('You can only access attachments for your own tickets.');
-        }
-    }
+    // authorizeTicketAccess() is provided by the AuthorizesTicketAccess trait
 }

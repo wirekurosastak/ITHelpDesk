@@ -25,22 +25,32 @@ class HelpdeskApiTest extends TestCase
 
     public function test_user_can_register_login_and_read_profile(): void
     {
+        // Registration now returns 201 with a pending message (no token, no data)
         $this->postJson('/api/auth/register', [
-            'name' => 'New Employee',
-            'email' => 'new.employee@example.com',
+            'name'     => 'New Employee',
+            'email'    => 'new.employee@example.com',
             'password' => 'secret123',
         ])
             ->assertCreated()
-            ->assertJsonPath('data.email', 'new.employee@example.com')
-            ->assertJsonPath('data.role_id', Role::EMPLOYEE_ID)
-            ->assertJsonPath('data.role.name', Role::EMPLOYEE);
+            ->assertJsonPath('message', 'Registration successful. Your account is pending admin approval.');
 
         $createdUser = User::where('email', 'new.employee@example.com')->firstOrFail();
 
         $this->assertNotSame('secret123', $createdUser->password);
+        $this->assertFalse($createdUser->is_approved);
 
+        // Login must be blocked until admin approves
+        $this->postJson('/api/auth/login', [
+            'email'    => 'new.employee@example.com',
+            'password' => 'secret123',
+        ])->assertForbidden();
+
+        // Admin approves the user
+        $createdUser->update(['is_approved' => true]);
+
+        // Now login should succeed
         $loginResponse = $this->postJson('/api/auth/login', [
-            'email' => 'new.employee@example.com',
+            'email'    => 'new.employee@example.com',
             'password' => 'secret123',
         ])
             ->assertOk()

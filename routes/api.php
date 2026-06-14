@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LookupController;
 use App\Http\Controllers\SystemStatusController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -28,4 +29,9 @@ Route::middleware('auth:api')->group(function (): void {
 
     Route::post('tickets/{ticket}/attachments', [AttachmentController::class, 'store']);
     Route::get('attachments/{attachment}/download', [AttachmentController::class, 'download']);
+
+    Route::apiResource('users', UserController::class)->except(['create', 'edit']);
+    Route::post('users/suspend-all', [UserController::class, 'suspendAll'])->middleware('role:admin');
+    Route::post('users/logout-all', [UserController::class, 'logoutAll'])->middleware('role:admin');
+    Route::post('users/{user}/suspend', [UserController::class, 'suspend'])->middleware('role:admin');
 });

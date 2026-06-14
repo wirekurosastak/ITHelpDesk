@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,29 +11,827 @@
     <style>
         :root {
             --bg-color: #050505;
-            --surface: #111111;
-            --surface-hover: #1a1a1a;
-            --border: #222222;
+            --surface: #18181b;
+            --surface-hover: #27272a;
+            --border: #27272a;
             --text-main: #f3f4f6;
             --text-muted: #9ca3af;
             --accent: #6366f1;
             --accent-hover: #4f46e5;
             --glow: rgba(99, 102, 241, 0.5);
-            
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
+            --input-bg: rgba(0, 0, 0, 0.25);
+            --topbar-bg: rgba(24, 24, 27, 0.85);
+            --stat-card-bg: rgba(0, 0, 0, 0.3);
+            --detail-card-bg: rgba(0, 0, 0, 0.3);
+            --body-grad1: rgba(99, 102, 241, 0.08);
+            --body-grad2: rgba(236, 72, 153, 0.05);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
-        
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            display: flex; 
-            height: 100vh; 
+        [data-theme="light"] {
+            --bg-color: #e2e8f0;
+            --surface: #ffffff;
+            --surface-hover: #f3f4f6;
+            --border: #e5e7eb;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --glow: rgba(99, 102, 241, 0.3);
+            --input-bg: rgba(0, 0, 0, 0.04);
+            --topbar-bg: rgba(255, 255, 255, 0.9);
+            --stat-card-bg: rgba(0, 0, 0, 0.04);
+            --detail-card-bg: rgba(0, 0, 0, 0.04);
+            --body-grad1: rgba(99, 102, 241, 0.04);
+            --body-grad2: rgba(236, 72, 153, 0.03);
+        }
+
+        [data-theme="light"] .glass {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: var(--border);
+        }
+
+        [data-theme="light"] .sidebar {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        [data-theme="light"] th {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        [data-theme="light"] tbody tr:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        [data-theme="light"] .topbar {
+            background: var(--topbar-bg);
+        }
+
+        [data-theme="light"] .modal {
+            background: var(--surface);
+        }
+
+        [data-theme="light"] .input-group input,
+        [data-theme="light"] .input-group textarea,
+        [data-theme="light"] .input-group select {
+            color: var(--text-main);
+            background: var(--input-bg);
+        }
+
+        [data-theme="light"] .detail-card {
+            background: var(--stat-card-bg);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
             overflow: hidden;
-            background-image: 
+            background-image:
+                radial-gradient(circle at 15% 50%, var(--body-grad1), transparent 25%),
+                radial-gradient(circle at 85% 30%, var(--body-grad2), transparent 25%);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: transparent;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-header {
+            padding: 30px 24px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+            color: var(--text-main);
+        }
+
+        @keyframes fadeInTab {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-tab {
+            animation: fadeInTab 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes colorWave {
+
+            0%,
+            100% {
+                color: var(--accent);
+            }
+
+            50% {
+                color: var(--text-main);
+            }
+        }
+
+
+
+        .sidebar-header svg {
+            width: 28px;
+            height: 28px;
+            color: var(--accent);
+            filter: drop-shadow(0 0 8px var(--glow));
+        }
+
+        .nav-items {
+            padding: 10px 16px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-weight: 500;
+            user-select: none;
+            font-size: 0.9rem;
+        }
+
+        .nav-item:hover {
+            background-color: var(--surface-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border-left: 3px solid var(--accent);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .topbar {
+            height: 72px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background: var(--topbar-bg);
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+
+        .profile-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: background 0.18s;
+            position: relative;
+        }
+
+        .profile-trigger:hover {
+            background: var(--surface-hover);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+        }
+
+        /* Profile dropdown */
+        .profile-dropdown {
+            display: none;
+            opacity: 0;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 270px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            z-index: 200;
+            overflow: hidden;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            transform: translateY(-6px);
+        }
+
+        .profile-dropdown.open {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 18px 16px;
+        }
+
+        .profile-dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 0 18px rgba(236, 72, 153, 0.35);
+        }
+
+        .profile-dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0;
+        }
+
+        .profile-dropdown-item {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            font-family: Outfit, sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: left;
+            transition: background 0.15s;
+        }
+
+        .profile-dropdown-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .profile-dropdown-item svg {
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .profile-dropdown-logout {
+            color: var(--danger) !important;
+        }
+
+        .profile-dropdown-logout svg {
+            color: var(--danger) !important;
+        }
+
+        .profile-dropdown-logout:hover {
+            background: rgba(239, 68, 68, 0.08) !important;
+        }
+
+        .content {
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+            scroll-behavior: smooth;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            user-select: none;
+            height: 40px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+
+        /* Inline select for user management - matches button height */
+        .inline-select {
+            height: 40px;
+            padding: 0 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+
+        .inline-select:hover {
+            border-color: var(--accent);
+        }
+
+        .inline-select option {
+            background: var(--surface);
+            color: var(--text-main);
+        }
+
+        /* Section header with SVG icon (replaces emojis) */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .section-header svg {
+            color: var(--text-muted);
+        }
+
+        /* Settings panel */
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.75rem;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .settings-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Toggle switch */
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle input:checked+.toggle-slider {
+            background: var(--accent);
+        }
+
+        .toggle input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .badge-open {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-progress {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-closed {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(156, 163, 175, 0.2);
+        }
+
+        .badge-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-medium {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.4s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spinSlow {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin-slow {
+            animation: spinSlow 17s linear infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.85);
+            }
+        }
+
+        .breathe {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes letterReveal {
+            0% {
+                opacity: 0;
+                transform: translateX(-8px) translateY(2px);
+                filter: blur(3px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .reveal-item {
+            opacity: 0;
+            animation: letterReveal 0.9s var(--reveal-delay, 0s) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        span.reveal-item {
+            display: inline-block;
+        }
+
+        .nexus-letter {
+            display: inline-block;
+            opacity: 0;
+            animation: letterReveal 0.9s var(--reveal-delay, 0s) cubic-bezier(0.16, 1, 0.3, 1) forwards,
+                colorWave 5.3s var(--color-delay, -5.3s) linear infinite;
+        }
+
+        .modal h2 {
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .modal p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .input-group select option {
+            background: var(--surface);
+            color: var(--text-main);
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .demo-hint {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border: 1px dashed var(--border);
+            line-height: 1.8;
+        }
+
+        .demo-hint code {
+            background: rgba(120, 120, 180, 0.18);
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: var(--accent);
+            border: 1px solid rgba(120, 120, 180, 0.25);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .demo-hint code:hover {
+            background: rgba(120, 120, 180, 0.3);
+            border-color: rgba(120, 120, 180, 0.4);
+        }
+
+        .detail-card {
+            background: var(--detail-card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        /* Light mode: option dropdown bg */
+        [data-theme="light"] option {
+            background: #ffffff;
+            color: #111827;
+        }
+
+        [data-theme="light"] .inline-select option {
+            background: #ffffff;
+            color: #111827;
+        }
+
+        /* Consistent table cell font size */
+        td {
+            font-size: 0.9rem;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-image:
                 radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
                 radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 25%);
         }
@@ -44,262 +843,446 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
         }
-        
+
         /* Sidebar */
-        .sidebar { 
-            width: 280px; 
-            background-color: transparent; 
+        .sidebar {
+            width: 280px;
+            background-color: transparent;
             border-right: 1px solid var(--border);
-            display: flex; 
-            flex-direction: column; 
+            display: flex;
+            flex-direction: column;
             z-index: 10;
         }
-        .sidebar-header { 
-            padding: 30px 24px; 
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            display: flex; 
-            align-items: center; 
+
+        .sidebar-header {
+            padding: 30px 24px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
             gap: 12px;
-            background: linear-gradient(90deg, #fff, #a5a5a5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
         }
-        .sidebar-header svg { 
-            width: 28px; 
-            height: 28px; 
+
+        .sidebar-header svg {
+            width: 28px;
+            height: 28px;
             color: var(--accent);
-            -webkit-text-fill-color: initial;
             filter: drop-shadow(0 0 8px var(--glow));
         }
-        
-        .nav-items { padding: 10px 16px; flex: 1; }
-        .nav-item { 
-            padding: 12px 16px; 
-            color: var(--text-muted); 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            display: flex; 
-            align-items: center; 
+
+        .nav-items {
+            padding: 10px 16px;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
             gap: 12px;
             border-radius: 8px;
             margin-bottom: 4px;
             font-weight: 500;
             user-select: none;
         }
-        .nav-item:hover { 
-            background-color: var(--surface-hover); 
-            color: var(--text-main); 
+
+        .nav-item:hover {
+            background-color: var(--surface-hover);
+            color: var(--text-main);
         }
-        .nav-item.active { 
-            background-color: rgba(99, 102, 241, 0.1); 
-            color: var(--accent); 
+
+        .nav-item.active {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
             border-left: 3px solid var(--accent);
         }
-        
+
         /* Main Content */
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        
-        .topbar { 
-            height: 72px; 
-            border-bottom: 1px solid var(--border); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 32px; 
-            background: rgba(5,5,5,0.8);
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .topbar {
+            height: 72px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background: rgba(5, 5, 5, 0.8);
             backdrop-filter: blur(8px);
             z-index: 5;
         }
-        .user-profile { display: flex; align-items: center; gap: 12px; font-weight: 500; }
-        .avatar { 
-            width: 36px; height: 36px; 
-            background: linear-gradient(135deg, var(--accent), #ec4899); 
-            color: white; 
-            border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 600; 
+
+        .profile-trigger {
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), #ec4899);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
         }
-        
-        .content { padding: 40px; overflow-y: auto; flex: 1; scroll-behavior: smooth; }
-        .content::-webkit-scrollbar { width: 8px; }
-        .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-        .page-header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
-        .page-title { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; }
-        
+        .content {
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+            scroll-behavior: smooth;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
         /* Buttons */
-        .btn { 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            border: none; 
-            font-weight: 500; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            display: inline-flex; 
-            align-items: center; 
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            gap: 8px; 
+            gap: 8px;
             font-size: 0.95rem;
             user-select: none;
         }
-        .btn-primary { 
-            background: var(--accent); 
-            color: white; 
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
             box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
         }
-        .btn-primary:hover { 
-            background: var(--accent-hover); 
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
+
         .btn-secondary {
             background: var(--surface);
             color: var(--text-main);
             border: 1px solid var(--border);
         }
-        .btn-secondary:hover { background: var(--surface-hover); }
-        
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+
         /* Cards & Tables */
-        .card { 
-            background: var(--surface); 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
-            overflow: hidden; 
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 18px 24px; border-bottom: 1px solid var(--border); }
-        th { 
-            background: rgba(255,255,255,0.02); 
-            color: var(--text-muted); 
-            font-weight: 500; 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            letter-spacing: 0.1em; 
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
         }
-        tr { transition: background 0.2s; }
-        tbody tr:hover { background: rgba(255,255,255,0.03); transform: scale(1.001); }
-        tr:last-child td { border-bottom: none; }
-        
+
+        th,
+        td {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: scale(1.001);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
         /* Badges */
-        .badge { 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 0.7rem; 
-            font-weight: 700; 
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
-        .badge-open { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .badge-progress { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
-        .badge-closed { background: rgba(156, 163, 175, 0.1); color: var(--text-muted); border: 1px solid rgba(156, 163, 175, 0.2); }
-        .badge-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
-        .badge-medium { background: rgba(99, 102, 241, 0.1); color: var(--accent); border: 1px solid rgba(99, 102, 241, 0.2); }
-        
+
+        .badge-open {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-progress {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-closed {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(156, 163, 175, 0.2);
+        }
+
+        .badge-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-medium {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
         /* Overlays / Modals */
-        .overlay { 
-            position: fixed; inset: 0; 
-            background: rgba(0,0,0,0.8); 
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 1000; 
-            transition: opacity 0.3s ease; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
         }
-        .modal { 
-            background: var(--surface); 
-            padding: 40px; 
-            border-radius: 16px; 
-            width: 100%; 
+
+        .modal {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
             border: 1px solid var(--border);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             transform: translateY(20px);
             opacity: 0;
             animation: slideUp 0.4s forwards cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideUp {
-            to { transform: translateY(0); opacity: 1; }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
-        .modal h2 { margin-bottom: 8px; font-weight: 600; font-size: 1.5rem; }
-        .modal p.subtitle { color: var(--text-muted); margin-bottom: 32px; }
-        
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); }
-        .input-group input, .input-group textarea, .input-group select { 
-            width: 100%; 
-            padding: 12px 16px; 
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
+        .modal h2 {
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .modal p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             color: white;
-            outline: none; 
+            outline: none;
             transition: all 0.2s;
             font-family: 'Outfit', sans-serif;
         }
-        .input-group input:focus, .input-group textarea:focus, .input-group select:focus { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); 
-            background: rgba(0,0,0,0.4);
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            background: rgba(0, 0, 0, 0.4);
         }
-        .btn-full { width: 100%; padding: 14px; font-size: 1rem; margin-top: 10px; }
-        
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
         /* Demo Hints */
         .demo-hint {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 8px;
             font-size: 0.8rem;
             color: var(--text-muted);
-            border: 1px dashed var(--border);
-        }
-        .demo-hint code { background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
-
-        /* Detail Modal specific */
-        .detail-card {
-            background: rgba(0,0,0,0.3);
-            padding: 24px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-        }
     </style>
 </head>
+
 <body>
 
     <!-- Authentication Overlay -->
-    <div class="overlay" id="loginOverlay">
-        <div class="modal" style="max-width: 420px;">
-            <div style="display: flex; justify-content: center; margin-bottom: 24px;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 48px; height: 48px; filter: drop-shadow(0 0 10px var(--glow));"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+    <div class="overlay" id="loginOverlay" style="align-items: flex-start; padding-top: 12vh;">
+        <div class="modal" style="max-width: 420px; transition: height 0.3s ease;">
+            <div class="reveal-item"
+                style="display: flex; justify-content: center; margin-bottom: 24px; --reveal-delay: 0.0s;">
+                <svg class="spin-slow" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    style="width: 48px; height: 48px; filter: drop-shadow(0 0 10px var(--glow));">
+                    <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
             </div>
-            <h2 style="text-align: center;">Welcome to Nexus</h2>
-            <p class="subtitle" style="text-align: center;">Sign in to the Enterprise Service Desk</p>
-            
-            <form onsubmit="authenticate(event)">
-                <div class="input-group">
-                    <label>Corporate Email</label>
-                    <input type="email" id="email" placeholder="name@company.com" required>
+            <h2 style="text-align: center;">
+                <span class="reveal-item" style="--reveal-delay: 0.15s;">Welcome</span>
+                <span class="reveal-item" style="--reveal-delay: 0.25s;">to</span>
+                <span style="white-space:nowrap;">
+                    <span class="nexus-letter" style="--reveal-delay: 0.35s; --color-delay: -2.4s">N</span><span class="nexus-letter" style="--reveal-delay: 0.45s; --color-delay: -1.8s">e</span><span class="nexus-letter" style="--reveal-delay: 0.55s; --color-delay: -1.2s">x</span><span class="nexus-letter" style="--reveal-delay: 0.65s; --color-delay: -0.6s">u</span><span class="nexus-letter" style="--reveal-delay: 0.75s; --color-delay: 0.0s">s</span>
+                </span>
+            </h2>
+
+            <!-- Auth tab switcher -->
+            <div
+                style="display: flex; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 4px; margin-bottom: 24px; gap: 4px;">
+                <button id="tabBtnLogin" onclick="showAuthTab('login')"
+                    style="flex:1; padding: 8px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; background: var(--accent); color: white; transition: all 0.2s;">Sign
+                    In</button>
+                <button id="tabBtnRegister" onclick="showAuthTab('register')"
+                    style="flex:1; padding: 8px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s;">Register</button>
+            </div>
+
+            <!-- Login form -->
+            <div id="authLogin" class="animate-tab">
+                <form onsubmit="authenticate(event)">
+                    <div class="input-group">
+                        <label>Corporate Email</label>
+                        <input type="email" id="email" placeholder="name@company.com" required>
+                    </div>
+                    <div class="input-group">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label style="margin-bottom:0;">Password</label>
+                            <a href="#"
+                                onclick="alert('Please contact your IT administrator to reset your password.'); event.preventDefault();"
+                                style="color:var(--accent); font-size:0.75rem; text-decoration:none; opacity:0.8;">Forgot
+                                password?</a>
+                        </div>
+                        <input type="password" id="password" placeholder="••••••••" required style="margin-top:6px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                </form>
+                <div id="loginError"
+                    style="color: var(--danger); font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;">
+                    Authentication failed.</div>
+                <div class="demo-hint" style="margin-top: 20px;">
+                    <strong>Demo Accounts:</strong><br>
+                    Admin: <code onclick="copyDemoText(this)" data-copy="admin@company.com"
+                        title="Click to copy">admin@company.com</code><br>
+                    IT Support: <code onclick="copyDemoText(this)" data-copy="it@company.com"
+                        title="Click to copy">it@company.com</code><br>
+                    Employee: <code onclick="copyDemoText(this)" data-copy="employee@company.com"
+                        title="Click to copy">employee@company.com</code><br>
+                    Password for all: <code onclick="copyDemoText(this)" data-copy="password"
+                        title="Click to copy">password</code>
                 </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <!-- Register form -->
+            <div id="authRegister" class="animate-tab" style="display: none;">
+                <form onsubmit="registerUser(event)">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" placeholder="Kovács János" required minlength="2">
+                    </div>
+                    <div class="input-group">
+                        <label>Corporate Email</label>
+                        <input type="email" id="regEmail" placeholder="name@company.com" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" placeholder="Min. 6 characters" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                </form>
+                <div id="registerMsg" style="font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;">
                 </div>
-                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
-            </form>
-            <div id="loginError" style="color: var(--danger); font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;">Authentication failed.</div>
-            
-            <div class="demo-hint" style="line-height: 1.6;">
-                <strong>Demo Accounts:</strong><br>
-                Admin: <code>admin@company.com</code><br>
-                IT Support: <code>it@company.com</code><br>
-                Employee: <code>employee@company.com</code><br>
-                Password for all: <code>password</code>
+                <div class="demo-hint" style="margin-top: 20px;">
+                    <strong>Note:</strong><br>
+                    New accounts require <strong>Admin approval</strong> before login is granted.<br>
+                    Role upgrades can be done by an Admin.
+                </div>
             </div>
         </div>
     </div>
@@ -307,21 +1290,61 @@
     <!-- Application Sidebar -->
     <div class="sidebar glass">
         <div class="sidebar-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-            Nexus
+            <svg class="spin-slow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                </path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span class="nexus-sidebar-word" style="white-space:nowrap;">
+                <span class="nexus-letter" style="--reveal-delay: 0.0s; --color-delay: -2.4s">N</span><span
+                    class="nexus-letter" style="--reveal-delay: 0.08s; --color-delay: -1.8s">e</span><span
+                    class="nexus-letter" style="--reveal-delay: 0.16s; --color-delay: -1.2s">x</span><span
+                    class="nexus-letter" style="--reveal-delay: 0.24s; --color-delay: -0.6s">u</span><span
+                    class="nexus-letter" style="--reveal-delay: 0.32s; --color-delay: 0.0s">s</span>
+            </span>
         </div>
         <div class="nav-items">
             <div class="nav-item active" id="nav-incident" onclick="switchTab('incident')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
-                Incidents
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                Tickets
             </div>
             <div class="nav-item" id="nav-service" onclick="switchTab('service')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 8v4l3 3"></path>
+                </svg>
                 Requests
             </div>
+            <div class="nav-item" id="nav-users" onclick="switchTab('users')" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                User Management
+            </div>
             <div class="nav-item" id="nav-status" onclick="switchTab('status')" style="display: none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                System Status <span style="font-size: 0.7rem; background: var(--danger); padding: 2px 6px; border-radius: 4px; color: white;">Admin</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                System Status
+            </div>
+            <div class="nav-item" id="nav-settings" onclick="switchTab('settings')" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+                    </path>
+                </svg>
+                Settings
             </div>
         </div>
         <div style="padding: 24px; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
@@ -333,32 +1356,99 @@
     <div class="main">
         <div class="topbar">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);"></div>
-                <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Live</span>
+                <div class="breathe" id="topbarLedIcon"
+                    style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);">
+                </div>
+                <span id="topbarLedText" style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">API
+                    Connected</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 24px;">
-                <div class="user-profile">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <!-- Theme toggle -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" title="Toggle light/dark mode"
+                    style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.2s;">
+                    <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <!-- Profile dropdown trigger -->
+                <div class="profile-trigger" id="profileTrigger" onclick="toggleProfileMenu()">
                     <div style="text-align: right;">
-                        <div id="userName" style="font-size: 0.9rem;">Agent Name</div>
+                        <div id="userName" style="font-size: 0.9rem; line-height: 1.2;">Agent Name</div>
                         <div id="userRoleBadge" style="font-size: 0.7rem; color: var(--accent);">IT SUPPORT</div>
                     </div>
                     <div class="avatar" id="userAvatar">IT</div>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        style="color:var(--text-muted); flex-shrink:0;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
                 </div>
-                <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="logout()">Logout</button>
+
+                <!-- Profile dropdown panel -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown-header">
+                        <div class="profile-dropdown-avatar" id="profileDropdownAvatar">IT</div>
+                        <div>
+                            <div id="profileDropdownName" style="font-weight:600; font-size:0.95rem;">Agent Name</div>
+                            <div id="profileDropdownEmail"
+                                style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">—</div>
+                            <div id="profileDropdownRole"
+                                style="font-size:0.72rem; color:var(--accent); font-weight:600; margin-top:3px; text-transform:uppercase; letter-spacing:0.06em;">
+                                Role</div>
+                        </div>
+                    </div>
+                    <div class="profile-dropdown-divider"></div>
+                    <button class="profile-dropdown-item" onclick="openChangePasswordModal(); toggleProfileMenu();">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Change Password
+                    </button>
+                    <div class="profile-dropdown-divider"></div>
+                    <button class="profile-dropdown-item profile-dropdown-logout"
+                        onclick="logout(); toggleProfileMenu();">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Sign Out
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Incidents Tab -->
-        <div class="content" id="tab-incident">
+        <div class="content animate-tab" id="tab-incident">
             <div class="page-header">
-                <h1 class="page-title">Active Incidents</h1>
+                <h1 class="page-title">Tickets</h1>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="loadTickets()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <button class="btn btn-secondary" onclick="loadTickets(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
                         Refresh
                     </button>
                     <button class="btn btn-primary" onclick="showNewTicketModal()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
                         New Ticket
                     </button>
                 </div>
@@ -368,32 +1458,45 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Ticket ID</th>
-                            <th>Subject</th>
-                            <th>Category</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Requester</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Ticket ID</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Subject</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Category</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Priority</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Status</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Requester</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Date</th>
                         </tr>
                     </thead>
                     <tbody id="ticketTableBody">
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No data
+                                loaded.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Service Requests Tab -->
-        <div class="content" id="tab-service" style="display: none;">
+        <div class="content animate-tab" id="tab-service" style="display: none;">
             <div class="page-header">
                 <h1 class="page-title">Service Requests</h1>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="loadTickets()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <button class="btn btn-secondary" onclick="loadTickets(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
                         Refresh
                     </button>
                     <button class="btn btn-primary" onclick="showNewTicketModal(true)">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
                         New Request
                     </button>
                 </div>
@@ -402,46 +1505,281 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Request ID</th>
-                            <th>Subject</th>
-                            <th>Category</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Requester</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Request ID</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Subject</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Category</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Priority</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Status</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Requester</th>
+                            <th onclick="sortTable(this)" title="Click to sort">Date</th>
                         </tr>
                     </thead>
                     <tbody id="requestTableBody">
-                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No data
+                                loaded.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- System Status Tab -->
-        <div class="content" id="tab-status" style="display: none;">
-            <div class="page-header"><h1 class="page-title">System Status</h1></div>
+        <div class="content animate-tab" id="tab-status" style="display: none;">
+            <div class="page-header">
+                <h1 class="page-title">System Status</h1>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="loadSystemStatus(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-secondary" id="clearCacheBtn" onclick="clearCache()"
+                        style="color:var(--warning); border-color: rgba(245,158,11,0.4);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 .49-3.51"></path>
+                        </svg>
+                        Clear Cache
+                    </button>
+                </div>
+            </div>
             <div class="card glass" style="padding: 40px;">
                 <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
-                    <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success);"></div>
-                    <span style="font-weight: 600; font-size: 1.25rem;">Server Connected</span>
+                    <div class="breathe" id="serverLedIcon"
+                        style="width: 16px; height: 16px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success);">
+                    </div>
+                    <span id="serverLedText" style="font-weight: 600; font-size: 1.25rem;">API Connected</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                    <div
+                        style="padding: 24px; background: var(--stat-card-bg); border: 1px solid var(--border); border-radius: 12px;">
                         <div style="color: var(--text-muted); margin-bottom: 8px;">Framework</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statLaravel">Loading...</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statLaravel">
+                            Loading...</div>
                         <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;" id="statPhp"></div>
                     </div>
-                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                    <div
+                        style="padding: 24px; background: var(--stat-card-bg); border: 1px solid var(--border); border-radius: 12px;">
                         <div style="color: var(--text-muted); margin-bottom: 8px;">Database</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--success);" id="statDb">Loading...</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--success);" id="statDb">Loading...
+                        </div>
                     </div>
-                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                    <div
+                        style="padding: 24px; background: var(--stat-card-bg); border: 1px solid var(--border); border-radius: 12px;">
                         <div style="color: var(--text-muted); margin-bottom: 8px;">Memory Usage</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statMem">Loading...</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statMem">
+                            Loading...</div>
                     </div>
-                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                    <div
+                        style="padding: 24px; background: var(--stat-card-bg); border: 1px solid var(--border); border-radius: 12px;">
                         <div style="color: var(--text-muted); margin-bottom: 8px;">Uptime</div>
-                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statTime">Loading...</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statTime">
+                            Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Tab (Admin only) -->
+        <div class="content animate-tab" id="tab-users" style="display: none;">
+            <div class="page-header">
+                <h1 class="page-title">User Management</h1>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="loadUsers(this)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-secondary" onclick="logoutAllUsers()"
+                        style="color:var(--warning); border-color:rgba(245,158,11,0.4);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout All
+                    </button>
+                    <button class="btn btn-secondary" onclick="suspendAllUsers()"
+                        style="color:var(--danger); border-color:rgba(239,68,68,0.4);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Suspend All
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewUserModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New User
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pending Approvals section -->
+            <div class="section-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span id="pendingLabel" style="font-weight: 600; font-size: 0.95rem;">Pending Approvals</span>
+                <span id="pendingCount"
+                    style="border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; border: 1px solid; background: rgba(16,185,129,0.15); color: var(--success); border-color: rgba(16,185,129,0.3);">0</span>
+            </div>
+            <div class="card glass" style="margin-bottom: 32px;">
+                <table style="table-layout:fixed;">
+                    <thead>
+                        <tr>
+                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Name</th>
+                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Email</th>
+                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Registered</th>
+                            <th style="width:20%"></th>
+                            <th style="width:20%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">No pending
+                                registrations.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- All Users section -->
+            <div class="section-header" style="margin-top: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span style="font-weight: 600; font-size: 0.95rem;">All Users</span>
+            </div>
+            <div class="card glass">
+                <table style="table-layout:fixed;">
+                    <thead>
+                        <tr>
+                            <th style="width:16%" onclick="sortTable(this)" title="Click to sort">Name</th>
+                            <th style="width:22%" onclick="sortTable(this)" title="Click to sort">Email</th>
+                            <th style="width:15%" onclick="sortTable(this)" title="Click to sort">Role</th>
+                            <th style="width:15%" onclick="sortTable(this)" title="Click to sort">Status</th>
+                            <th style="width:32%">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Tab (all users) -->
+        <div class="content animate-tab" id="tab-settings" style="display: none;">
+            <div class="page-header">
+                <h1 class="page-title">Settings</h1>
+                <button class="btn btn-primary" id="saveSettingsBtn" onclick="saveSettings()" style="display:none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+
+            <!-- Appearance -->
+            <div class="settings-section">
+                <div class="card glass" style="overflow: visible;">
+                    <div
+                        style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
+                        Appearance</div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Dark Mode</div>
+                            <div class="settings-desc">Toggle between dark and light interface theme</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="settingDarkMode" checked onchange="toggleTheme()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin-only settings -->
+            <div id="adminOnlySettings" style="display:none;">
+                <!-- Pending Approvals Thresholds -->
+                <div class="settings-section">
+                    <div class="card glass" style="overflow: visible;">
+                        <div
+                            style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
+                            Pending Approvals Alert Thresholds</div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-label" style="color: var(--warning);">⬤ Warning</div>
+                                <div class="settings-desc">Show yellow badge when pending count reaches this number
+                                </div>
+                            </div>
+                            <input type="number" id="settingWarnAt" min="1" max="99" value="3"
+                                oninput="markSettingsDirty()"
+                                style="width: 80px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: Outfit, sans-serif; font-size: 0.9rem; text-align: center;">
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-label" style="color: var(--danger);">⬤ Critical</div>
+                                <div class="settings-desc">Show red badge when pending count reaches this number</div>
+                            </div>
+                            <input type="number" id="settingDangerAt" min="1" max="99" value="6"
+                                oninput="markSettingsDirty()"
+                                style="width: 80px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: Outfit, sans-serif; font-size: 0.9rem; text-align: center;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto-refresh (all users) -->
+            <div class="settings-section">
+                <div class="card glass" style="overflow: visible;">
+                    <div
+                        style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
+                        Ticket List</div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Auto-refresh Tickets</div>
+                            <div class="settings-desc">Automatically reload the ticket list in the background</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="settingAutoRefresh" onchange="onAutoRefreshToggle()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="settings-row" id="refreshIntervalRow" style="opacity:0.4; pointer-events:none;">
+                        <div>
+                            <div class="settings-label">Refresh Interval</div>
+                            <div class="settings-desc">How often to refresh the ticket list (minutes)</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" id="settingRefreshInterval" min="1" max="1440" value="5"
+                                oninput="markSettingsDirty()"
+                                style="width: 80px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: Outfit, sans-serif; font-size: 0.9rem; text-align: center;">
+                            <span style="color: var(--text-muted); font-size:0.85rem;">min</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -481,38 +1819,60 @@
         <div class="modal" style="max-width: 600px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
                 <div>
-                    <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;" id="detailId">#INC-0000</div>
+                    <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;"
+                        id="detailId">#INC-0000</div>
                     <h2 id="detailTitle" style="margin-bottom: 0;">Ticket Details</h2>
                 </div>
                 <span id="detailStatus"></span>
             </div>
-            
+
             <div class="detail-card">
                 <p id="detailDesc" style="font-size: 0.95rem; line-height: 1.6;"></p>
             </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; font-size: 0.875rem; padding: 0 8px;">
-                <div><span style="color: var(--text-muted);">Requester:</span> <strong style="color: white; margin-left: 8px;" id="detailUser"></strong></div>
-                <div><span style="color: var(--text-muted);">Category:</span> <strong style="color: white; margin-left: 8px;" id="detailCategory"></strong></div>
+
+            <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; font-size: 0.875rem; padding: 0 8px;">
+                <div><span style="color: var(--text-muted);">Requester:</span> <strong
+                        style="color: var(--text-main); margin-left: 8px;" id="detailUser"></strong></div>
+                <div><span style="color: var(--text-muted);">Category:</span> <strong
+                        style="color: var(--text-main); margin-left: 8px;" id="detailCategory"></strong></div>
             </div>
 
             <div class="input-group" id="itActions" style="border-top: 1px solid var(--border); padding-top: 24px;">
-                <label style="color: var(--accent);">IT/Admin Action: Update Status</label>
-                <select id="updateStatus">
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="closed">Closed</option>
-                </select>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="color: var(--accent);">Update Status</label>
+                        <select id="updateStatus">
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color: var(--accent);">Priority</label>
+                        <select id="updatePriority">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 32px;">
                 <button class="btn btn-secondary" style="flex: 1;" onclick="closeDetailsModal()">Close</button>
-                <button class="btn btn-primary" style="flex: 1;" id="saveBtn" onclick="saveTicketDetails()">Save Changes</button>
+                <button class="btn btn-primary" style="flex: 1;" id="saveBtn" onclick="saveTicketDetails()">Save
+                    Changes</button>
             </div>
             <div style="margin-top: 12px; text-align: center; display: none;" id="adminActions">
-                <button class="btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 100%; border: 1px dashed var(--danger);" onclick="deleteTicket()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Delete Permanently (Admin Only)
+                <button class="btn"
+                    style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 100%; border: 1px dashed var(--danger);"
+                    onclick="deleteTicket()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete Permanently
                 </button>
             </div>
         </div>
@@ -523,68 +1883,381 @@
         let currentUserRole = parseInt(localStorage.getItem('nexus_role')) || 1;
         let allTickets = [];
         let currentTicketId = null;
+        let statusUptimeInterval = null;
+        let autoRefreshInterval = null;
+        let statusStartTs = null;
+
+        function setBtnRefreshing(btn) {
+            if (!btn || btn.tagName !== 'BUTTON') return null;
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerText = 'Refreshing...';
+            return orig;
+        }
+
+        function restoreBtnRefreshing(btn, orig) {
+            if (orig) {
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }, 400);
+            }
+        }
+
+        // ─── Settings (localStorage persisted) ─────────────────────────────
+        let settings = {
+            darkMode: true,
+            warnAt: 3,
+            dangerAt: 6,
+            autoRefresh: false,
+            refreshInterval: 60,
+        };
+
+        // ─── Per-account settings key ───────────────────────────────────
+        function getSettingsKey() {
+            return 'nexus_settings_' + (localStorage.getItem('nexus_user_id') || 'guest');
+        }
+
+        function loadSettingsUI() {
+            const s = JSON.parse(localStorage.getItem(getSettingsKey()) || '{}');
+            settings = Object.assign(settings, s);
+            document.getElementById('settingDarkMode').checked = settings.darkMode;
+            document.getElementById('settingAutoRefresh').checked = settings.autoRefresh;
+            document.getElementById('settingRefreshInterval').value = settings.refreshInterval;
+            if (document.getElementById('settingWarnAt')) document.getElementById('settingWarnAt').value = settings.warnAt;
+            if (document.getElementById('settingDangerAt')) document.getElementById('settingDangerAt').value = settings.dangerAt;
+            onAutoRefreshToggle(true);
+            const btn = document.getElementById('saveSettingsBtn');
+            if (btn) btn.style.display = 'none';
+        }
+
+        function markSettingsDirty() {
+            const btn = document.getElementById('saveSettingsBtn');
+            if (btn) btn.style.display = '';
+        }
+
+        function onAutoRefreshToggle(silent = false) {
+            const isOn = document.getElementById('settingAutoRefresh').checked;
+            const row = document.getElementById('refreshIntervalRow');
+            row.style.opacity = isOn ? '1' : '0.4';
+            row.style.pointerEvents = isOn ? 'auto' : 'none';
+            if (!silent) {
+                settings.autoRefresh = isOn;
+                const s = JSON.parse(localStorage.getItem(getSettingsKey()) || '{}');
+                Object.assign(s, { autoRefresh: isOn });
+                localStorage.setItem(getSettingsKey(), JSON.stringify(s));
+                applySettings();
+            }
+        }
+
+        function saveSettings() {
+            settings.darkMode = document.getElementById('settingDarkMode').checked;
+            settings.autoRefresh = document.getElementById('settingAutoRefresh').checked;
+            settings.refreshInterval = parseInt(document.getElementById('settingRefreshInterval').value) || 5;
+            if (document.getElementById('settingWarnAt')) settings.warnAt = parseInt(document.getElementById('settingWarnAt').value) || 3;
+            if (document.getElementById('settingDangerAt')) settings.dangerAt = parseInt(document.getElementById('settingDangerAt').value) || 6;
+            localStorage.setItem(getSettingsKey(), JSON.stringify(settings));
+            applySettings();
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.innerHTML = '✓ Saved';
+            setTimeout(() => { btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Save Changes'; btn.style.display = 'none'; }, 1500);
+        }
+
+        function applySettings() {
+            // Theme
+            document.documentElement.setAttribute('data-theme', settings.darkMode ? 'dark' : 'light');
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                if (settings.darkMode) {
+                    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                } else {
+                    icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                }
+            }
+            // Auto-refresh (interval stored in minutes → convert to ms)
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            if (settings.autoRefresh && authToken) {
+                autoRefreshInterval = setInterval(loadTickets, (settings.refreshInterval || 5) * 60 * 1000);
+            }
+        }
+
+        function toggleTheme() {
+            const s = JSON.parse(localStorage.getItem(getSettingsKey()) || '{}');
+            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            settings.darkMode = !isDark;
+            Object.assign(s, { darkMode: settings.darkMode });
+            localStorage.setItem(getSettingsKey(), JSON.stringify(s));
+            applySettings();
+            const chk = document.getElementById('settingDarkMode');
+            if (chk) chk.checked = settings.darkMode;
+        }
+
+        function updatePendingBadge(count) {
+            const badge = document.getElementById('pendingCount');
+            if (!badge) return;
+            badge.innerText = count;
+            const warn = settings.warnAt || 3;
+            const danger = settings.dangerAt || 6;
+            if (count === 0) {
+                badge.style.background = 'rgba(16,185,129,0.15)';
+                badge.style.color = 'var(--success)';
+                badge.style.borderColor = 'rgba(16,185,129,0.3)';
+            } else if (count < warn) {
+                badge.style.background = 'rgba(16,185,129,0.15)';
+                badge.style.color = 'var(--success)';
+                badge.style.borderColor = 'rgba(16,185,129,0.3)';
+            } else if (count < danger) {
+                badge.style.background = 'rgba(245,158,11,0.15)';
+                badge.style.color = 'var(--warning)';
+                badge.style.borderColor = 'rgba(245,158,11,0.3)';
+            } else {
+                badge.style.background = 'rgba(239,68,68,0.15)';
+                badge.style.color = 'var(--danger)';
+                badge.style.borderColor = 'rgba(239,68,68,0.3)';
+            }
+        }
+
+        // Apply persisted settings on load (before login)
+        (function () {
+            const s = JSON.parse(localStorage.getItem(getSettingsKey()) || '{}');
+            settings = Object.assign(settings, s);
+            applySettings();
+        })();
+
+        // ─── Profile Dropdown ─────────────────────────────────────────────
+        function toggleProfileMenu() {
+            const dd = document.getElementById('profileDropdown');
+            dd.classList.toggle('open');
+        }
+
+        function updateProfileDropdown(name, email, role) {
+            const monogram = name ? name.substring(0, 2).toUpperCase() : '??';
+            const roleLabel = role === 3 ? 'Admin' : (role === 2 ? 'IT Support' : 'Employee');
+            document.getElementById('profileDropdownAvatar').innerText = monogram;
+            document.getElementById('profileDropdownName').innerText = name || '—';
+            document.getElementById('profileDropdownEmail').innerText = email || '—';
+            document.getElementById('profileDropdownRole').innerText = roleLabel;
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const trigger = document.getElementById('profileTrigger');
+            const dropdown = document.getElementById('profileDropdown');
+            if (dropdown && !trigger?.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // ─── Change Password ──────────────────────────────────────────────
+        function openChangePasswordModal() {
+            document.getElementById('pwCurrent').value = '';
+            document.getElementById('pwNew').value = '';
+            document.getElementById('pwConfirm').value = '';
+            document.getElementById('pwError').style.display = 'none';
+            document.getElementById('pwSuccess').style.display = 'none';
+            const overlay = document.getElementById('changePasswordOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+        }
+
+        function closeChangePasswordModal() {
+            const overlay = document.getElementById('changePasswordOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
+
+        async function changePassword() {
+            const current = document.getElementById('pwCurrent').value;
+            const newPw = document.getElementById('pwNew').value;
+            const confirm = document.getElementById('pwConfirm').value;
+            const errEl = document.getElementById('pwError');
+            const successEl = document.getElementById('pwSuccess');
+            const btn = document.getElementById('changePwBtn');
+
+            errEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            if (!current || !newPw || !confirm) {
+                errEl.innerText = 'All fields are required.'; errEl.style.display = 'block'; return;
+            }
+            if (newPw !== confirm) {
+                errEl.innerText = 'New passwords do not match.'; errEl.style.display = 'block'; return;
+            }
+            if (newPw.length < 6) {
+                errEl.innerText = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return;
+            }
+
+            btn.disabled = true; btn.innerText = 'Saving...';
+
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                    body: JSON.stringify({ current_password: current, password: newPw, password_confirmation: confirm })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    successEl.innerText = 'Password changed successfully!';
+                    successEl.style.display = 'block';
+                    document.getElementById('pwCurrent').value = '';
+                    document.getElementById('pwNew').value = '';
+                    document.getElementById('pwConfirm').value = '';
+                    setTimeout(() => closeChangePasswordModal(), 1800);
+                } else {
+                    const firstErr = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Failed to change password.');
+                    errEl.innerText = firstErr; errEl.style.display = 'block';
+                }
+            } catch (e) {
+                errEl.innerText = 'Connection error.'; errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false; btn.innerText = 'Save Password';
+            }
+        }
+
+        function copyDemoText(el) {
+            const text = el.dataset.copy;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                el.innerText = 'Copied!';
+                el.style.color = 'var(--success)';
+                setTimeout(() => {
+                    el.innerText = text;
+                    el.style.color = '';
+                }, 1000);
+            });
+        }
+
+        function showAuthTab(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('authLogin').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('authRegister').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('tabBtnLogin').style.background = isLogin ? 'var(--accent)' : 'transparent';
+            document.getElementById('tabBtnLogin').style.color = isLogin ? 'white' : 'var(--text-muted)';
+            document.getElementById('tabBtnRegister').style.background = isLogin ? 'transparent' : 'var(--accent)';
+            document.getElementById('tabBtnRegister').style.color = isLogin ? 'var(--text-muted)' : 'white';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('registerMsg').style.display = 'none';
+        }
+
+        async function registerUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const msg = document.getElementById('registerMsg');
+            const btn = document.querySelector('#authRegister .btn-primary');
+
+            btn.disabled = true;
+            btn.innerText = 'Creating...';
+            msg.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    msg.style.color = 'var(--warning, #f59e0b)';
+                    msg.innerText = 'Registration received! Your account is awaiting admin approval before you can sign in.';
+                    msg.style.display = 'block';
+                    document.getElementById('regName').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                    // Stay on Register tab so the user reads the pending notice
+                } else {
+                    const firstError = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Registration failed.');
+                    msg.style.color = 'var(--danger)';
+                    msg.innerText = firstError;
+                    msg.style.display = 'block';
+                }
+            } catch (e) {
+                msg.style.color = 'var(--danger)';
+                msg.innerText = 'Connection error.';
+                msg.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Create Account';
+            }
+        }
+
+        function applyNavVisibility() {
+            // Settings visible to all; status/users admin-only
+            document.getElementById('nav-settings').style.display = 'flex';
+            if (currentUserRole === 3) {
+                document.getElementById('nav-status').style.display = 'flex';
+                document.getElementById('nav-users').style.display = 'flex';
+                const adminSec = document.getElementById('adminOnlySettings');
+                if (adminSec) adminSec.style.display = 'block';
+            } else {
+                document.getElementById('nav-status').style.display = 'none';
+                document.getElementById('nav-users').style.display = 'none';
+                const adminSec = document.getElementById('adminOnlySettings');
+                if (adminSec) adminSec.style.display = 'none';
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             if (authToken) {
                 const userName = localStorage.getItem('nexus_name') || 'Agent';
+                const userEmail = localStorage.getItem('nexus_email') || '';
                 document.getElementById('userName').innerText = userName;
                 document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
                 document.getElementById('userAvatar').innerText = userName.substring(0, 2).toUpperCase();
-                
-                if (currentUserRole === 3) {
-                    document.getElementById('nav-status').style.display = 'flex';
-                } else {
-                    document.getElementById('nav-status').style.display = 'none';
-                }
-
+                updateProfileDropdown(userName, userEmail, currentUserRole);
+                applyNavVisibility();
                 document.getElementById('loginOverlay').style.display = 'none';
-                loadTickets();
+                const savedTab = localStorage.getItem('nexus_tab') || 'incident';
+                const adminOnly = ['status', 'users'];
+                const tabToLoad = (adminOnly.includes(savedTab) && currentUserRole !== 3) ? 'incident' : savedTab;
+                switchTab(tabToLoad);
             }
         });
 
         async function authenticate(event) {
-            if(event) event.preventDefault();
+            if (event) event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.querySelector('#loginOverlay .btn-primary');
-            
-            if(!email || !password) return;
-            
+
+            if (!email || !password) return;
+
             btn.innerText = "Authenticating...";
             document.getElementById('loginError').style.display = 'none';
 
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await response.json();
-                
+
                 if (response.ok && data.access_token) {
                     authToken = data.access_token;
                     currentUserRole = data.user.role_id;
                     localStorage.setItem('nexus_token', authToken);
                     localStorage.setItem('nexus_role', currentUserRole);
                     localStorage.setItem('nexus_name', data.user.name);
+                    localStorage.setItem('nexus_email', data.user.email);
+                    localStorage.setItem('nexus_user_id', data.user.id);
                     document.getElementById('userName').innerText = data.user.name;
                     document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
                     document.getElementById('userAvatar').innerText = data.user.name.substring(0, 2).toUpperCase();
-                    
-                    if (currentUserRole === 3) {
-                        document.getElementById('nav-status').style.display = 'flex';
-                    } else {
-                        document.getElementById('nav-status').style.display = 'none';
-                    }
+                    updateProfileDropdown(data.user.name, data.user.email, currentUserRole);
+                    applyNavVisibility();
 
                     const overlay = document.getElementById('loginOverlay');
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.style.display = 'none', 300);
-                    
-                    loadTickets();
+
+                    switchTab('incident');
+                    loadSettingsUI();
                 } else {
                     document.getElementById('loginError').innerText = data.message || "Authentication failed.";
                     document.getElementById('loginError').style.display = 'block';
@@ -602,21 +2275,35 @@
             try {
                 await fetch('/api/auth/logout', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Authorization': 'Bearer ' + authToken,
                         'Accept': 'application/json'
                     }
                 });
-            } catch (e) {}
-            
+            } catch (e) { }
+
             authToken = "";
             localStorage.removeItem('nexus_token');
             localStorage.removeItem('nexus_role');
             localStorage.removeItem('nexus_name');
-            document.getElementById('ticketTableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
-            
-            // clear inputs
-            document.getElementById('password').value = "";
+            localStorage.removeItem('nexus_user_id');
+
+            const emptyRow = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
+            document.getElementById('ticketTableBody').innerHTML = emptyRow;
+            document.getElementById('requestTableBody').innerHTML = emptyRow;
+            document.getElementById('pendingTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">No pending registrations.</td></tr>';
+            document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Loading...</td></tr>';
+            updatePendingBadge(0);
+            document.getElementById('nav-users').style.display = 'none';
+            document.getElementById('nav-settings').style.display = 'none';
+
+            // Clear both login fields and reset to login tab
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            showAuthTab('login');
+
+            // Stop any live uptime ticker
+            if (statusUptimeInterval) { clearInterval(statusUptimeInterval); statusUptimeInterval = null; }
 
             const overlay = document.getElementById('loginOverlay');
             overlay.style.display = 'flex';
@@ -636,26 +2323,134 @@
             return '<span class="badge badge-closed">LOW</span>';
         }
 
+        function getPrioritySort(priority) {
+            if (priority === 'high') return 3;
+            if (priority === 'medium') return 2;
+            return 1;
+        }
+
+        function getStatusSort(status) {
+            if (status === 'open') return 1;
+            if (status === 'in_progress') return 2;
+            return 3;
+        }
+
+        let sortDirections = {};
+        function sortTable(th) {
+            const tr = th.parentElement;
+            const tbody = tr.parentElement.parentElement.querySelector('tbody');
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            if (rows.length <= 1) return;
+            if (rows.length === 1 && rows[0].cells.length === 1) return;
+
+            const colIndex = Array.from(tr.children).indexOf(th);
+            const tableId = tbody.id || 'table_' + Math.random();
+            tbody.id = tableId;
+
+            const key = `${tableId}_${colIndex}`;
+            const asc = !sortDirections[key];
+            sortDirections[key] = asc;
+
+            tr.querySelectorAll('th').forEach(h => h.innerText = h.innerText.replace(/ [▲▼]$/, ''));
+            th.innerText += asc ? ' ▲' : ' ▼';
+
+            rows.sort((a, b) => {
+                const cellA = a.cells[colIndex];
+                const cellB = b.cells[colIndex];
+
+                const valA = cellA.hasAttribute('data-sort') ? cellA.getAttribute('data-sort') : cellA.innerText.trim();
+                const valB = cellB.hasAttribute('data-sort') ? cellB.getAttribute('data-sort') : cellB.innerText.trim();
+
+                const numA = parseFloat(valA);
+                const numB = parseFloat(valB);
+
+                if (!isNaN(numA) && !isNaN(numB) && valA !== '' && valB !== '' && !isNaN(valA) && !isNaN(valB)) {
+                    return asc ? numA - numB : numB - numA;
+                }
+                return asc ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+            });
+
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
         function switchTab(tabId) {
-            document.getElementById('tab-incident').style.display = 'none';
-            document.getElementById('tab-service').style.display = 'none';
-            document.getElementById('tab-status').style.display = 'none';
-            document.getElementById('nav-incident').classList.remove('active');
-            document.getElementById('nav-service').classList.remove('active');
-            document.getElementById('nav-status').classList.remove('active');
-            
+            ['incident', 'service', 'status', 'users', 'settings'].forEach(id => {
+                document.getElementById('tab-' + id).style.display = 'none';
+                document.getElementById('nav-' + id)?.classList.remove('active');
+            });
+
             document.getElementById('tab-' + tabId).style.display = 'block';
-            document.getElementById('nav-' + tabId).classList.add('active');
-            
+            document.getElementById('nav-' + tabId)?.classList.add('active');
+
+            // Persist active tab across F5 reloads
+            localStorage.setItem('nexus_tab', tabId);
+
+            if (statusUptimeInterval) { clearInterval(statusUptimeInterval); statusUptimeInterval = null; }
+
             if (tabId === 'status') {
                 loadSystemStatus();
+                statusUptimeInterval = setInterval(tickUptime, 1000);
+            } else if (tabId === 'users') {
+                loadUsers();
+            } else if (tabId === 'settings') {
+                loadSettingsUI();
+            } else if (tabId === 'incident' || tabId === 'service') {
+                loadTickets();
             }
         }
 
-        async function loadSystemStatus() {
+        function updateServerLed(isOnline, text = null) {
+            const color = isOnline ? 'var(--success)' : 'var(--danger)';
+            const led1 = document.getElementById('serverLedIcon');
+            const txt1 = document.getElementById('serverLedText');
+            const led2 = document.getElementById('topbarLedIcon');
+            const txt2 = document.getElementById('topbarLedText');
+
+            if (led1) {
+                led1.style.background = color;
+                led1.style.boxShadow = `0 0 12px ${color}`;
+            }
+            if (txt1 && text) {
+                txt1.innerText = text;
+                txt1.style.color = isOnline ? 'var(--text-main)' : 'var(--danger)';
+            }
+
+            if (led2) {
+                led2.style.background = color;
+                led2.style.boxShadow = `0 0 8px ${color}`;
+            }
+            if (txt2) {
+                txt2.innerText = isOnline ? 'API Connected' : 'API Unreachable';
+            }
+        }
+
+        function tickUptime() {
+            if (statusStartTs === null) return;
+            const elapsed = Math.floor(Date.now() / 1000) - statusStartTs;
+            const h = Math.floor(elapsed / 3600);
+            const m = Math.floor((elapsed % 3600) / 60);
+            const s = elapsed % 60;
+            const pad = n => String(n).padStart(2, '0');
+            document.getElementById('statTime').innerText = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        }
+
+        async function loadSystemStatus(btn = null) {
+            const origBtn = setBtnRefreshing(btn);
+
+            document.getElementById('statLaravel').innerText = 'Loading...';
+            document.getElementById('statPhp').innerText = 'Loading...';
+            document.getElementById('statDb').innerText = 'Loading...';
+            document.getElementById('statDb').style.color = 'var(--text-muted)';
+            document.getElementById('statMem').innerText = 'Loading...';
+            document.getElementById('statTime').innerText = 'Loading...';
+
+            updateServerLed(true, 'Loading...');
+
             try {
                 const response = await fetch('/api/status', {
-                    headers: { 
+                    headers: {
                         'Authorization': 'Bearer ' + authToken,
                         'Accept': 'application/json'
                     }
@@ -670,15 +2465,36 @@
                 const data = json.data || json;
                 document.getElementById('statLaravel').innerText = 'Laravel v' + data.laravel_version;
                 document.getElementById('statPhp').innerText = 'PHP v' + data.php_version;
-                document.getElementById('statDb').innerText = data.database;
+
+                const dbStatus = data.database || 'Unknown';
+                const dbEl = document.getElementById('statDb');
+                dbEl.innerText = dbStatus;
+                dbEl.style.color = dbStatus.toLowerCase() === 'online' ? 'var(--success)' : 'var(--danger)';
+
                 document.getElementById('statMem').innerText = data.memory_usage_mb + ' MB';
-                document.getElementById('statTime').innerText = data.uptime || '-';
+                // Store server start timestamp so we can tick live client-side
+                if (data.start_timestamp) {
+                    statusStartTs = data.start_timestamp;
+                } else {
+                    // Fallback: derive from uptime string if no timestamp available
+                    statusStartTs = Math.floor(Date.now() / 1000);
+                }
+                tickUptime();
+
+                updateServerLed(true, 'API Connected');
+
             } catch (e) {
                 document.getElementById('statLaravel').innerText = 'Error loading metrics';
+                document.getElementById('statDb').innerText = 'Unknown';
+                document.getElementById('statDb').style.color = 'var(--danger)';
+                updateServerLed(false, 'API Unreachable');
+            } finally {
+                restoreBtnRefreshing(btn, origBtn);
             }
         }
 
-        async function loadTickets() {
+        async function loadTickets(btn = null) {
+            const origBtn = setBtnRefreshing(btn);
             const tbody = document.getElementById('ticketTableBody');
             const rtbody = document.getElementById('requestTableBody');
             if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
@@ -687,7 +2503,7 @@
             try {
                 const response = await fetch('/api/tickets', {
                     method: 'GET',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
@@ -698,9 +2514,19 @@
 
                 const json = await response.json();
                 allTickets = json.data || json;
-                
-                const incidents = allTickets.filter(t => t.category_id === 1 || t.category_id === 3);
-                const requests = allTickets.filter(t => t.category_id === 2 || t.category_id === 4);
+
+                // Sort tickets by priority (high to low) then by date (oldest first)
+                allTickets.sort((a, b) => {
+                    const pa = getPrioritySort(a.priority);
+                    const pb = getPrioritySort(b.priority);
+                    if (pa !== pb) return pb - pa;
+                    return new Date(a.created_at) - new Date(b.created_at);
+                });
+
+                // Split by category name instead of fragile hardcoded IDs
+                const INCIDENT_CATEGORIES = ['Hardware Issue', 'Network/Internet'];
+                const incidents = allTickets.filter(t => t.category && INCIDENT_CATEGORIES.includes(t.category.name));
+                const requests = allTickets.filter(t => !t.category || !INCIDENT_CATEGORIES.includes(t.category.name));
 
                 if (tbody) {
                     if (incidents.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found.</td></tr>';
@@ -709,7 +2535,7 @@
                         incidents.forEach(ticket => tbody.appendChild(createTicketRow(ticket, 'INC')));
                     }
                 }
-                
+
                 if (rtbody) {
                     if (requests.length === 0) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active requests found.</td></tr>';
                     else {
@@ -718,8 +2544,10 @@
                     }
                 }
             } catch (error) {
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
-                if (rtbody) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+                if (rtbody) rtbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+            } finally {
+                restoreBtnRefreshing(btn, origBtn);
             }
         }
 
@@ -727,13 +2555,17 @@
             const tr = document.createElement('tr');
             tr.style.cursor = 'pointer';
             tr.onclick = () => openDetails(ticket.id, prefix);
+            const dateStr = ticket.created_at
+                ? new Date(ticket.created_at).toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' })
+                : '-';
             tr.innerHTML = `
-                <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);">#${prefix}-${ticket.id.toString().padStart(4, '0')}</td>
-                <td style="font-weight: 500;">${ticket.title}</td>
-                <td style="color: var(--text-muted);">${ticket.category ? ticket.category.name : '-'}</td>
-                <td>${getPriorityBadge(ticket.priority)}</td>
-                <td>${getStatusBadge(ticket.status)}</td>
-                <td style="color: var(--text-muted);">${ticket.user ? ticket.user.name : '-'}</td>
+                <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);" data-sort="${ticket.id}">#${prefix}-${ticket.id.toString().padStart(4, '0')}</td>
+                <td style="font-weight: 500;" data-sort="${ticket.title}">${ticket.title}</td>
+                <td style="color: var(--text-muted);" data-sort="${ticket.category ? ticket.category.name : ''}">${ticket.category ? ticket.category.name : '-'}</td>
+                <td data-sort="${getPrioritySort(ticket.priority)}">${getPriorityBadge(ticket.priority)}</td>
+                <td data-sort="${getStatusSort(ticket.status)}">${getStatusBadge(ticket.status)}</td>
+                <td style="color: var(--text-muted);" data-sort="${ticket.user ? ticket.user.name : ''}">${ticket.user ? ticket.user.name : '-'}</td>
+                <td style="color: var(--text-muted); white-space: nowrap;" data-sort="${ticket.created_at}">${dateStr}</td>
             `;
             return tr;
         }
@@ -741,12 +2573,12 @@
         function showNewTicketModal(isReq = false) {
             document.getElementById('ticketTitle').value = '';
             document.getElementById('ticketDesc').value = '';
-            
+
             const cat = document.getElementById('ticketCategory');
-            cat.innerHTML = isReq 
+            cat.innerHTML = isReq
                 ? '<option value="2">Software / License</option><option value="4">Access / Accounts</option>'
                 : '<option value="1">Hardware Issue</option><option value="3">Network / Connectivity</option><option value="4">Other</option>';
-            
+
             const overlay = document.getElementById('ticketOverlay');
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
@@ -768,7 +2600,7 @@
             try {
                 const response = await fetch('/api/tickets', {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
@@ -778,7 +2610,7 @@
 
                 if (response.ok) {
                     closeNewTicketModal();
-                    loadTickets(); 
+                    loadTickets();
                 } else {
                     const errorData = await response.json();
                     alert("Validation Error: " + (errorData.message || 'Helytelen adatok.'));
@@ -799,16 +2631,17 @@
             document.getElementById('detailDesc').innerText = ticket.description;
             document.getElementById('detailUser').innerText = ticket.user ? ticket.user.name : 'Unknown';
             document.getElementById('detailCategory').innerText = ticket.category ? ticket.category.name : 'Unknown';
-            
+
             if (currentUserRole > 1) {
                 document.getElementById('itActions').style.display = 'block';
                 document.getElementById('saveBtn').style.display = 'block';
                 document.getElementById('updateStatus').value = ticket.status;
+                document.getElementById('updatePriority').value = ticket.priority || 'medium';
             } else {
                 document.getElementById('itActions').style.display = 'none';
                 document.getElementById('saveBtn').style.display = 'none';
             }
-            
+
             if (currentUserRole === 3) {
                 document.getElementById('adminActions').style.display = 'block';
             } else {
@@ -829,47 +2662,496 @@
 
         async function saveTicketDetails() {
             if (currentUserRole === 1 || !currentTicketId) return;
-            
+
             const newStatus = document.getElementById('updateStatus').value;
+            const newPriority = document.getElementById('updatePriority').value;
             const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
             btn.innerText = "Saving...";
 
             try {
-                await fetch('/api/tickets/' + currentTicketId, {
+                const response = await fetch('/api/tickets/' + currentTicketId, {
                     method: 'PATCH',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
                     },
-                    body: JSON.stringify({ status: newStatus })
+                    body: JSON.stringify({ status: newStatus, priority: newPriority })
                 });
-                
+
+                if (response.status === 401) { logout(); return; }
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Update failed.');
+                }
+
                 closeDetailsModal();
                 loadTickets();
-            } catch (e) {}
-            btn.innerText = "Save Changes";
+            } catch (e) {
+                alert('Error saving ticket: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            }
         }
 
         async function deleteTicket() {
             if (currentUserRole !== 3 || !currentTicketId) return;
-            if (!confirm("Are you sure you want to permanently delete this ticket?")) return;
+
+            const ticketId = currentTicketId; // capture before any modal close
+            const btn = document.getElementById('adminActions').querySelector('button');
+
+            if (btn.dataset.armed !== 'true') {
+                btn.dataset.armed = 'true';
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Confirm Delete?';
+                btn.style.background = 'rgba(239,68,68,0.35)';
+                btn.style.fontWeight = '700';
+                setTimeout(() => {
+                    btn.dataset.armed = 'false';
+                    btn.innerHTML = origHtml;
+                    btn.style.background = 'rgba(239,68,68,0.1)';
+                    btn.style.fontWeight = '';
+                }, 3000);
+                return;
+            }
+
+            // Second click – proceed with deletion
+            btn.disabled = true;
+            btn.innerHTML = 'Deleting...';
 
             try {
-                await fetch('/api/tickets/' + currentTicketId, {
+                const res = await fetch('/api/tickets/' + ticketId, {
                     method: 'DELETE',
-                    headers: { 
+                    headers: {
                         'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
                     }
                 });
-                
-                closeDetailsModal();
-                loadTickets();
+
+                if (res.ok || res.status === 204) {
+                    closeDetailsModal();
+                    loadTickets();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('Delete failed: ' + (err.message || 'Status ' + res.status));
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete Permanently';
+                }
             } catch (e) {
-                alert("Failed to delete ticket.");
+                alert('Network error: could not delete ticket.');
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete Permanently';
+            }
+        }
+
+        // ─── User Management (Admin only) ───────────────────────────────────
+
+        async function loadUsers(btn = null) {
+            const origBtn = setBtnRefreshing(btn);
+
+            const pendingTbody = document.getElementById('pendingTableBody');
+            const usersTbody = document.getElementById('usersTableBody');
+            if (pendingTbody) pendingTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
+            if (usersTbody) usersTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
+
+            try {
+                const response = await fetch('/api/users', {
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                if (response.status === 401) { logout(); return; }
+                const json = await response.json();
+                const users = json.data || [];
+
+                const pending = users.filter(u => !u.is_approved);
+                const approved = users.filter(u => u.is_approved);
+
+                updatePendingBadge(pending.length);
+
+                const pendingTbody = document.getElementById('pendingTableBody');
+                if (pending.length === 0) {
+                    pendingTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:30px;">No pending registrations.</td></tr>';
+                } else {
+                    pendingTbody.innerHTML = '';
+                    pending.forEach(u => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-weight:500;" data-sort="${u.name}">${u.name}</td>
+                            <td style="color:var(--text-muted);" data-sort="${u.email}">${u.email}</td>
+                            <td style="color:var(--text-muted);" data-sort="${u.created_at}">${new Date(u.created_at).toLocaleDateString('hu-HU')}</td>
+                            <td></td>
+                            <td style="display:flex; gap:8px; align-items:center;">
+                                <button class="btn btn-approve" data-id="${u.id}" style="background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);">
+                                    ✓ Approve
+                                </button>
+                                <button class="btn btn-reject" data-id="${u.id}" data-name="${u.name.replace(/"/g, '&quot;')}" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3);">
+                                    ✕ Reject
+                                </button>
+                            </td>`;
+                        tr.querySelector('.btn-approve').addEventListener('click', (e) => approveUser(u.id));
+                        tr.querySelector('.btn-reject').addEventListener('click', (e) => armButton(e.currentTarget, () => deleteUser(u.id)));
+                        pendingTbody.appendChild(tr);
+                    });
+                }
+
+                const usersTbody = document.getElementById('usersTableBody');
+                if (approved.length === 0) {
+                    usersTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">No approved users.</td></tr>';
+                } else {
+                    usersTbody.innerHTML = '';
+                    approved.forEach(u => {
+                        const roleColors = {
+                            'Employee': { bg: 'rgba(16,185,129,0.15)', clr: '#10b981' },
+                            'IT Support': { bg: 'rgba(245,158,11,0.15)', clr: '#f59e0b' },
+                            'Admin': { bg: 'rgba(239,68,68,0.15)', clr: '#ef4444' },
+                        };
+                        const roleName = u.role ? u.role.name : 'Employee';
+                        const rc = roleColors[roleName] || { bg: 'rgba(100,100,100,0.15)', clr: 'white' };
+                        const statusBg = u.is_suspended ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)';
+                        const statusClr = u.is_suspended ? '#f59e0b' : '#10b981';
+
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="font-weight:500;" data-sort="${u.name}">${u.name}</td>
+                            <td style="color:var(--text-muted);" data-sort="${u.email}">${u.email}</td>
+                            <td data-sort="${u.role_id}">
+                                <select class="inline-select" style="color:${rc.clr};">
+                                    <option value="1" ${u.role_id === 1 ? 'selected' : ''}>Employee</option>
+                                    <option value="2" ${u.role_id === 2 ? 'selected' : ''}>IT Support</option>
+                                    <option value="3" ${u.role_id === 3 ? 'selected' : ''}>Admin</option>
+                                </select>
+                            </td>
+                            <td data-sort="1">
+                                <span style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-weight:500;">
+                                    <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.5);"></span>
+                                    Online
+                                </span>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <button class="btn btn-logout-user" style="background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.3);">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    Logout
+                                </button>
+                                <button class="btn btn-suspend-user" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3); margin-left:6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    Suspend
+                                </button>
+                                <button class="btn btn-del-user" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3); margin-left:6px;">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+                                    Delete
+                                </button>
+                            </td>`;
+
+                        const selRole = tr.querySelector('.inline-select');
+                        selRole.addEventListener('change', async () => {
+                            const newRoleId = parseInt(selRole.value);
+                            await updateUser(u.id, { role_id: newRoleId });
+                            const rnames = { 1: 'Employee', 2: 'IT Support', 3: 'Admin' };
+                            const rclrs = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
+                            selRole.style.color = rclrs[newRoleId];
+                        });
+
+                        tr.querySelector('.btn-logout-user').addEventListener('click', (e) => armButton(e.currentTarget, () => forceLogoutUser(u.id)));
+                        tr.querySelector('.btn-suspend-user').addEventListener('click', (e) => armButton(e.currentTarget, () => suspendUser(u.id)));
+                        tr.querySelector('.btn-del-user').addEventListener('click', (e) => armButton(e.currentTarget, () => deleteUser(u.id)));
+                        usersTbody.appendChild(tr);
+                    });
+                }
+            } catch (e) {
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:30px;">Failed to load users.</td></tr>';
+            } finally {
+                restoreBtnRefreshing(btn, origBtn);
+            }
+        }
+
+        // One-click safety wrapper: first click shows 'Confirm?', second click executes
+        function armButton(btn, action) {
+            if (btn.dataset.armed === 'true') {
+                action();
+            } else {
+                btn.dataset.armed = 'true';
+                const orig = btn.innerText;
+                const origStyle = btn.getAttribute('style');
+                btn.innerText = 'Confirm?';
+                btn.style.background = 'rgba(239,68,68,0.3)';
+                btn.style.fontWeight = '700';
+                setTimeout(() => {
+                    btn.dataset.armed = 'false';
+                    btn.innerText = orig;
+                    btn.setAttribute('style', origStyle);
+                }, 3000);
+            }
+        }
+
+        async function updateUser(userId, payload) {
+            try {
+                const response = await fetch('/api/users/' + userId, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                    , body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert(err.message || 'Update failed.');
+                }
+            } catch (e) {
+                alert('Connection error.');
+            }
+        }
+
+        async function approveUser(userId) {
+            try {
+                const response = await fetch('/api/users/' + userId + '/approve', {
+                    method: 'PATCH',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert(err.message || 'Approval failed.');
+                    return;
+                }
+                loadUsers();
+            } catch (e) {
+                alert('Connection error.');
+            }
+        }
+
+        async function deleteUser(userId) {
+            try {
+                const response = await fetch('/api/users/' + userId, {
+                    method: 'DELETE',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                if (response.status === 422) {
+                    const err = await response.json();
+                    alert(err.message);
+                    return;
+                }
+                loadUsers();
+            } catch (e) {
+                alert('Connection error.');
+            }
+        }
+
+        // ─── Force Logout / Logout All ──────────────────────────────────
+        async function forceLogoutUser(userId) {
+            try {
+                const res = await fetch('/api/users/' + userId + '/force-logout', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await res.json();
+                if (res.status === 422) { alert(data.message); return; }
+                loadUsers();
+            } catch (e) { alert('Connection error.'); }
+        }
+
+        async function logoutAllUsers() {
+            if (!confirm('This will log out all active non-admin users. Continue?')) return;
+            try {
+                const res = await fetch('/api/users/logout-all', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await res.json();
+                alert(data.message);
+                loadUsers();
+            } catch (e) { alert('Connection error.'); }
+        }
+
+        async function suspendUser(userId) {
+            try {
+                const res = await fetch('/api/users/' + userId + '/suspend', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await res.json();
+                if (res.status === 422) { alert(data.message); return; }
+                loadUsers();
+            } catch (e) { alert('Connection error.'); }
+        }
+
+        async function suspendAllUsers() {
+            if (!confirm('This will suspend all non-admin users and move them to pending approvals. Continue?')) return;
+            try {
+                console.log('suspendAllUsers started');
+                const res = await fetch('/api/users/suspend-all', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await res.json();
+                console.log('suspendAllUsers result:', data);
+                if (data.message) {
+                    alert(data.message);
+                } else {
+                    alert('Action completed.');
+                }
+                loadUsers();
+            } catch (e) {
+                console.error(e);
+                alert('Connection error.');
+            }
+        }
+
+        // ─── Clear Cache ───────────────────────────────────────────────────
+        async function clearCache() {
+            const btn = document.getElementById('clearCacheBtn');
+            btn.disabled = true;
+            btn.innerText = 'Clearing...';
+            try {
+                const response = await fetch('/api/status/clear-cache', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await response.json();
+                btn.innerText = '✓ Cleared';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.51"></path></svg> Clear Cache';
+                }, 2000);
+                // Reload status metrics
+                loadSystemStatus();
+            } catch (e) {
+                btn.disabled = false;
+                btn.innerText = 'Error';
+                setTimeout(() => btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-3.51"></path></svg> Clear Cache', 2000);
+            }
+        }
+
+        // ─── New User Modal ────────────────────────────────────────────────
+        function showNewUserModal() {
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserRole').value = '1';
+            document.getElementById('newUserError').style.display = 'none';
+            const overlay = document.getElementById('newUserOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+        }
+
+        function closeNewUserModal() {
+            const overlay = document.getElementById('newUserOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
+
+        async function createUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const password = document.getElementById('newUserPassword').value;
+            const role_id = parseInt(document.getElementById('newUserRole').value);
+            const errEl = document.getElementById('newUserError');
+            const btn = document.getElementById('createUserBtn');
+
+            if (!name || !email || !password) {
+                errEl.innerText = 'All fields are required.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Creating...';
+            errEl.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                    body: JSON.stringify({ name, email, password, role_id })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    closeNewUserModal();
+                    loadUsers();
+                } else {
+                    const firstErr = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Creation failed.');
+                    errEl.innerText = firstErr;
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                errEl.innerText = 'Connection error.';
+                errEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Create User';
             }
         }
     </script>
+
+    <!-- New User Modal -->
+    <div class="overlay" id="newUserOverlay" style="display: none; opacity: 0;">
+        <div class="modal" style="max-width: 460px;">
+            <h2>Create New User</h2>
+            <p class="subtitle">User will be created as active with the selected role.</p>
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="newUserName" placeholder="e.g. John Smith">
+            </div>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="newUserEmail" placeholder="user@company.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="newUserPassword" placeholder="Minimum 6 characters">
+            </div>
+            <div class="input-group">
+                <label>Role</label>
+                <select id="newUserRole">
+                    <option value="1">Employee</option>
+                    <option value="2">IT Support</option>
+                    <option value="3">Admin</option>
+                </select>
+            </div>
+            <div id="newUserError" style="font-size: 0.875rem; color: var(--danger); margin-top: 8px; display: none;">
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 28px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeNewUserModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex: 1;" id="createUserBtn" onclick="createUser()">Create
+                    User</button>
+            </div>
+        </div>
+    </div>
+    <!-- Change Password Modal -->
+    <div class="overlay" id="changePasswordOverlay" style="display: none; opacity: 0;">
+        <div class="modal" style="max-width: 420px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                <div
+                    style="width:40px; height:40px; background:linear-gradient(135deg,var(--accent),#ec4899); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 style="margin:0; font-size:1.2rem;">Change Password</h2>
+                    <p class="subtitle" style="margin:2px 0 0;">Update your account password</p>
+                </div>
+            </div>
+            <div class="input-group" style="margin-top:24px;">
+                <label>Current Password</label>
+                <input type="password" id="pwCurrent" placeholder="Enter your current password">
+            </div>
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="pwNew" placeholder="At least 6 characters">
+            </div>
+            <div class="input-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="pwConfirm" placeholder="Repeat new password">
+            </div>
+            <div id="pwError" style="font-size:0.875rem; color:var(--danger);  margin-top:8px; display:none;"></div>
+            <div id="pwSuccess" style="font-size:0.875rem; color:var(--success); margin-top:8px; display:none;"></div>
+            <div style="display:flex; gap:12px; margin-top:24px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="closeChangePasswordModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex:1;" id="changePwBtn" onclick="changePassword()">Save
+                    Password</button>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

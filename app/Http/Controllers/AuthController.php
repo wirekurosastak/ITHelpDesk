@@ -19,6 +19,24 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid email or password.'], 401);
         }
 
+        // Block login until an Admin approves the account
+        if (! auth('api')->user()->is_approved) {
+            auth('api')->logout();
+
+            return response()->json([
+                'message' => 'Your account is pending admin approval. You will be notified when access is granted.',
+            ], 403);
+        }
+
+        // Block suspended accounts
+        if (auth('api')->user()->is_suspended) {
+            auth('api')->logout();
+
+            return response()->json([
+                'message' => 'Your account has been suspended. Please contact your administrator.',
+            ], 403);
+        }
+
         return $this->respondWithToken($token, 'Login successful.');
     }
 
@@ -26,16 +44,16 @@ class AuthController extends Controller
     {
         $validated = $request->validated();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => Role::EMPLOYEE_ID,
-        ])->load('role');
+        User::create([
+            'name'        => $validated['name'],
+            'email'       => $validated['email'],
+            'password'    => Hash::make($validated['password']),
+            'role_id'     => Role::EMPLOYEE_ID,
+            'is_approved' => false,   // must be approved by Admin before login
+        ]);
 
         return response()->json([
-            'message' => 'User registered successfully.',
-            'data' => $user,
+            'message' => 'Registration successful. Your account is pending admin approval.',
         ], 201);
     }
 
@@ -51,6 +69,24 @@ class AuthController extends Controller
         auth('api')->logout();
 
         return response()->json(['message' => 'Successfully logged out.']);
+    }
+
+    public function changePassword(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password'      => 'required|string',
+            'password'              => 'required|string|min:6|confirmed',
+        ]);
+
+        $user = auth('api')->user();
+
+        if (! Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect.'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return response()->json(['message' => 'Password changed successfully.']);
     }
 
     public function refresh(): JsonResponse

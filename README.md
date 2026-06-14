@@ -34,18 +34,52 @@ Kapcsolatok:
 
 ## Szerepkörök és jogosultságok
 
-| Szerepkör | Jogosultság |
+### Jogosultság-mátrix
+
+A táblázatban szereplő jelölések:
+- ✅ **Engedélyezett**
+- ❌ **Tiltott** (HTTP 403)
+- 🔒 **Részleges** – feltételes hozzáférés (ld. megjegyzés)
+
+| Művelet / Végpont | Employee | IT Support | Admin |
+| --- | :---: | :---: | :---: |
+| **Regisztráció** `POST /auth/register` | ✅ | ✅ | ✅ |
+| **Bejelentkezés** `POST /auth/login` | ✅ | ✅ | ✅ |
+| **Profil lekérés** `GET /auth/me` | ✅ | ✅ | ✅ |
+| **Token frissítés** `POST /auth/refresh` | ✅ | ✅ | ✅ |
+| **Kijelentkezés** `POST /auth/logout` | ✅ | ✅ | ✅ |
+| **Kategóriák listája** `GET /categories` | ✅ | ✅ | ✅ |
+| **Címkék listája** `GET /tags` | ✅ | ✅ | ✅ |
+| **Rendszer státusz** `GET /status` | ❌ | ❌ | ✅ |
+| **Hibajegyek listázása** `GET /tickets` | 🔒 csak saját | ✅ mind | ✅ mind |
+| **Hibajegy létrehozása** `POST /tickets` | ✅ | ✅ | ✅ |
+| **Hibajegy megtekintése** `GET /tickets/{id}` | 🔒 csak saját | ✅ | ✅ |
+| **Hibajegy módosítása** `PATCH /tickets/{id}` | 🔒 ld. ¹ | ✅ ld. ² | ✅ ld. ² |
+| **Hibajegy törlése** `DELETE /tickets/{id}` | ❌ | ❌ | ✅ |
+| **Fájl feltöltése** `POST /tickets/{id}/attachments` | 🔒 csak saját jegyre | ✅ | ✅ |
+| **Fájl letöltése** `GET /attachments/{id}/download` | 🔒 csak saját jegyről | ✅ | ✅ |
+
+**¹ Employee módosítási korlátok:**
+- Csak a `description` mező módosítható
+- Csak `open` státuszú jegyen (a `in_progress` és `closed` jegyek zároltak)
+- Csak saját hibajegyein
+
+**² IT Support / Admin módosítható mezők:**
+`title`, `description`, `status`, `priority`, `category_id`, `assigned_to`, `tags[]`
+- Az `assigned_to` értéke csak IT Support vagy Admin szerepkörű felhasználó lehet
+
+### Üzleti szabályok összefoglalója
+
+| Szabály | Részlet |
 | --- | --- |
-| Employee | Regisztrálhat, bejelentkezhet, hibajegyet hozhat létre, csak a saját hibajegyeit láthatja, és nyitott hibajegyen csak a leírást módosíthatja. Saját hibajegyhez fájlt tölthet fel és onnan tölthet le. |
-| IT Support | Látja az összes hibajegyet, módosíthat státuszt, prioritást, kategóriát, címkét és felelőst. Nem törölhet hibajegyet. |
-| Admin | IT Support jogok mellett hibajegyet is törölhet. |
+| Jelszótárolás | Bcrypt hash – nyílt jelszó sosem kerül adatbázisba |
+| JWT token érvényesség | 60 perc (konfiguráció: `JWT_TTL` env változó) |
+| Fájl méretkorlát | max. 10 MB / feltöltés |
+| Engedélyezett fájltípusok | jpg, jpeg, png, gif, webp, pdf, doc, docx, xls, xlsx, ppt, pptx, txt, log, csv, zip, tar, gz, 7z |
+| Assignee korlát | Hibajegyet csak IT Support vagy Admin szerepkörű felhasználóhoz lehet rendelni |
+| Adatbázis kaszkád | Hibajegy törlésekor a csatolmány rekordok és a feltöltött fájlok is törlődnek |
 
-Fontos üzleti szabályok:
 
-- A dolgozó nem férhet hozzá más dolgozó hibajegyéhez vagy csatolmányához.
-- Dolgozó csak `open` státuszú saját hibajegy leírását módosíthatja.
-- Hibajegyet csak IT Support vagy Admin felhasználóhoz lehet hozzárendelni.
-- A törlés csak Admin szerepkörrel engedélyezett.
 
 ## API végpontok
 
@@ -85,7 +119,7 @@ Sikeres login válasz:
 | --- | --- | --- | --- |
 | `GET` | `/api/categories` | Bejelentkezett | Kategóriák listája |
 | `GET` | `/api/tags` | Bejelentkezett | Címkék listája |
-| `GET` | `/api/status` | Bejelentkezett | PHP, Laravel, adatbázis és memória státusz |
+| `GET` | `/api/status` | **Csak Admin** | PHP, Laravel, adatbázis és memória státusz |
 
 ### Hibajegyek
 
@@ -181,11 +215,11 @@ Laragon alatt a `ITHelpDesk` mappa állítható be projektként. A böngészős 
 
 ## Mintaadatok
 
-| Szerepkör | Email | Jelszó |
-| --- | --- | --- |
-| Employee | `employee@company.com` | `password` |
-| IT Support | `it@company.com` | `password` |
-| Admin | `admin@company.com` | `password` |
+| Szerepkör | Név | Email | Jelszó |
+| --- | --- | --- | --- |
+| Employee | `Beadandó Ötös` | `employee@company.com` | `password` |
+| IT Support | `Szőllősi Martin` | `it@company.com` | `password` |
+| Admin | `Balla Tamás` | `admin@company.com` | `password` |
 
 A seeder kategóriákat, címkéket, három felhasználót és két minta hibajegyet hoz létre.
 
