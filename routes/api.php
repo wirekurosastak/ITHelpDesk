@@ -21,7 +21,7 @@ Route::prefix('auth')->group(function (): void {
 Route::middleware('auth:api')->group(function (): void {
     Route::get('categories', [LookupController::class, 'categories']);
     Route::get('tags', [LookupController::class, 'tags']);
-    Route::get('status', SystemStatusController::class);
+    Route::get('status', SystemStatusController::class)->middleware('role:admin');
 
     Route::apiResource('tickets', TicketController::class)->except('destroy');
     Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->middleware('role:admin');

@@ -85,6 +85,7 @@
             border-radius: 8px;
             margin-bottom: 4px;
             font-weight: 500;
+            user-select: none;
         }
         .nav-item:hover { 
             background-color: var(--surface-hover); 
@@ -141,6 +142,7 @@
             justify-content: center;
             gap: 8px; 
             font-size: 0.95rem;
+            user-select: none;
         }
         .btn-primary { 
             background: var(--accent); 
@@ -279,20 +281,24 @@
             <h2 style="text-align: center;">Welcome to Nexus</h2>
             <p class="subtitle" style="text-align: center;">Sign in to the Enterprise Service Desk</p>
             
-            <div class="input-group">
-                <label>Corporate Email</label>
-                <input type="email" id="email" placeholder="name@company.com" value="">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="••••••••" value="">
-            </div>
-            <button class="btn btn-primary btn-full" onclick="authenticate()">Sign In</button>
+            <form onsubmit="authenticate(event)">
+                <div class="input-group">
+                    <label>Corporate Email</label>
+                    <input type="email" id="email" placeholder="name@company.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            </form>
             <div id="loginError" style="color: var(--danger); font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;">Authentication failed.</div>
             
-            <div class="demo-hint">
+            <div class="demo-hint" style="line-height: 1.6;">
                 <strong>Demo Accounts:</strong><br>
-                Admin/IT: <code>it@company.com</code> | Employee: <code>employee@company.com</code><br>
+                Admin: <code>admin@company.com</code><br>
+                IT Support: <code>it@company.com</code><br>
+                Employee: <code>employee@company.com</code><br>
                 Password for all: <code>password</code>
             </div>
         </div>
@@ -313,13 +319,13 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
                 Requests
             </div>
-            <div class="nav-item" id="nav-status" onclick="switchTab('status')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                System Status
+            <div class="nav-item" id="nav-status" onclick="switchTab('status')" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                System Status <span style="font-size: 0.7rem; background: var(--danger); padding: 2px 6px; border-radius: 4px; color: white;">Admin</span>
             </div>
         </div>
         <div style="padding: 24px; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-            Nexus OS v2.1.0<br>Secure API Connection
+            Nexus v1.0.0<br>Secure API Connection
         </div>
     </div>
 
@@ -379,11 +385,35 @@
 
         <!-- Service Requests Tab -->
         <div class="content" id="tab-service" style="display: none;">
-            <div class="page-header"><h1 class="page-title">Service Requests</h1></div>
-            <div class="card glass" style="padding: 80px 40px; text-align: center; color: var(--text-muted);">
-                <svg style="width: 64px; height: 64px; margin-bottom: 24px; color: var(--border);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <h3 style="color: var(--text-main); font-size: 1.5rem; margin-bottom: 8px;">Module in Development</h3>
-                <p>The Service Request catalog is currently being migrated to the new Nexus architecture.</p>
+            <div class="page-header">
+                <h1 class="page-title">Service Requests</h1>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="loadTickets()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewTicketModal(true)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        New Request
+                    </button>
+                </div>
+            </div>
+            <div class="card glass">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Subject</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Requester</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -410,7 +440,7 @@
                         <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statMem">Loading...</div>
                     </div>
                     <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
-                        <div style="color: var(--text-muted); margin-bottom: 8px;">Server Time</div>
+                        <div style="color: var(--text-muted); margin-bottom: 8px;">Uptime</div>
                         <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statTime">Loading...</div>
                     </div>
                 </div>
@@ -467,7 +497,7 @@
             </div>
 
             <div class="input-group" id="itActions" style="border-top: 1px solid var(--border); padding-top: 24px;">
-                <label style="color: var(--accent);">Admin Action: Update Status</label>
+                <label style="color: var(--accent);">IT/Admin Action: Update Status</label>
                 <select id="updateStatus">
                     <option value="open">Open</option>
                     <option value="in_progress">In Progress</option>
@@ -479,16 +509,41 @@
                 <button class="btn btn-secondary" style="flex: 1;" onclick="closeDetailsModal()">Close</button>
                 <button class="btn btn-primary" style="flex: 1;" id="saveBtn" onclick="saveTicketDetails()">Save Changes</button>
             </div>
+            <div style="margin-top: 12px; text-align: center; display: none;" id="adminActions">
+                <button class="btn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 100%; border: 1px dashed var(--danger);" onclick="deleteTicket()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Delete Permanently (Admin Only)
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        let authToken = "";
-        let currentUserRole = 1;
+        let authToken = localStorage.getItem('nexus_token') || "";
+        let currentUserRole = parseInt(localStorage.getItem('nexus_role')) || 1;
         let allTickets = [];
         let currentTicketId = null;
 
-        async function authenticate() {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (authToken) {
+                const userName = localStorage.getItem('nexus_name') || 'Agent';
+                document.getElementById('userName').innerText = userName;
+                document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
+                document.getElementById('userAvatar').innerText = userName.substring(0, 2).toUpperCase();
+                
+                if (currentUserRole === 3) {
+                    document.getElementById('nav-status').style.display = 'flex';
+                } else {
+                    document.getElementById('nav-status').style.display = 'none';
+                }
+
+                document.getElementById('loginOverlay').style.display = 'none';
+                loadTickets();
+            }
+        });
+
+        async function authenticate(event) {
+            if(event) event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.querySelector('#loginOverlay .btn-primary');
@@ -501,24 +556,37 @@
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ email, password })
                 });
                 const data = await response.json();
                 
-                if (data.access_token) {
+                if (response.ok && data.access_token) {
                     authToken = data.access_token;
                     currentUserRole = data.user.role_id;
+                    localStorage.setItem('nexus_token', authToken);
+                    localStorage.setItem('nexus_role', currentUserRole);
+                    localStorage.setItem('nexus_name', data.user.name);
                     document.getElementById('userName').innerText = data.user.name;
-                    document.getElementById('userRoleBadge').innerText = currentUserRole > 1 ? 'ADMIN / IT' : 'EMPLOYEE';
+                    document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
                     document.getElementById('userAvatar').innerText = data.user.name.substring(0, 2).toUpperCase();
                     
+                    if (currentUserRole === 3) {
+                        document.getElementById('nav-status').style.display = 'flex';
+                    } else {
+                        document.getElementById('nav-status').style.display = 'none';
+                    }
+
                     const overlay = document.getElementById('loginOverlay');
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.style.display = 'none', 300);
                     
                     loadTickets();
                 } else {
+                    document.getElementById('loginError').innerText = data.message || "Authentication failed.";
                     document.getElementById('loginError').style.display = 'block';
                     btn.innerText = "Sign In";
                 }
@@ -534,15 +602,20 @@
             try {
                 await fetch('/api/auth/logout', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + authToken }
+                    headers: { 
+                        'Authorization': 'Bearer ' + authToken,
+                        'Accept': 'application/json'
+                    }
                 });
             } catch (e) {}
             
             authToken = "";
+            localStorage.removeItem('nexus_token');
+            localStorage.removeItem('nexus_role');
+            localStorage.removeItem('nexus_name');
             document.getElementById('ticketTableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
             
             // clear inputs
-            document.getElementById('email').value = "";
             document.getElementById('password').value = "";
 
             const overlay = document.getElementById('loginOverlay');
@@ -582,14 +655,24 @@
         async function loadSystemStatus() {
             try {
                 const response = await fetch('/api/status', {
-                    headers: { 'Authorization': 'Bearer ' + authToken }
+                    headers: { 
+                        'Authorization': 'Bearer ' + authToken,
+                        'Accept': 'application/json'
+                    }
                 });
-                const data = await response.json();
+
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+
+                const json = await response.json();
+                const data = json.data || json;
                 document.getElementById('statLaravel').innerText = 'Laravel v' + data.laravel_version;
                 document.getElementById('statPhp').innerText = 'PHP v' + data.php_version;
                 document.getElementById('statDb').innerText = data.database;
-                document.getElementById('statMem').innerText = data.memory_usage;
-                document.getElementById('statTime').innerText = data.server_time;
+                document.getElementById('statMem').innerText = data.memory_usage_mb + ' MB';
+                document.getElementById('statTime').innerText = data.uptime || '-';
             } catch (e) {
                 document.getElementById('statLaravel').innerText = 'Error loading metrics';
             }
@@ -597,47 +680,73 @@
 
         async function loadTickets() {
             const tbody = document.getElementById('ticketTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
+            const rtbody = document.getElementById('requestTableBody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
+            if (rtbody) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
 
             try {
                 const response = await fetch('/api/tickets', {
                     method: 'GET',
                     headers: { 
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
                     }
                 });
 
-                allTickets = await response.json();
-                
-                if (allTickets.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found in database.</td></tr>';
-                    return;
-                }
+                if (response.status === 401) { logout(); return; }
 
-                tbody.innerHTML = '';
-                allTickets.forEach(ticket => {
-                    const tr = document.createElement('tr');
-                    tr.style.cursor = 'pointer';
-                    tr.onclick = () => openDetails(ticket.id);
-                    tr.innerHTML = `
-                        <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);">#INC-${ticket.id.toString().padStart(4, '0')}</td>
-                        <td style="font-weight: 500;">${ticket.title}</td>
-                        <td style="color: var(--text-muted);">${ticket.category ? ticket.category.name : '-'}</td>
-                        <td>${getPriorityBadge(ticket.priority)}</td>
-                        <td>${getStatusBadge(ticket.status)}</td>
-                        <td style="color: var(--text-muted);">${ticket.user ? ticket.user.name : '-'}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                const json = await response.json();
+                allTickets = json.data || json;
+                
+                const incidents = allTickets.filter(t => t.category_id === 1 || t.category_id === 3);
+                const requests = allTickets.filter(t => t.category_id === 2 || t.category_id === 4);
+
+                if (tbody) {
+                    if (incidents.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found.</td></tr>';
+                    else {
+                        tbody.innerHTML = '';
+                        incidents.forEach(ticket => tbody.appendChild(createTicketRow(ticket, 'INC')));
+                    }
+                }
+                
+                if (rtbody) {
+                    if (requests.length === 0) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active requests found.</td></tr>';
+                    else {
+                        rtbody.innerHTML = '';
+                        requests.forEach(ticket => rtbody.appendChild(createTicketRow(ticket, 'REQ')));
+                    }
+                }
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+                if (rtbody) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
             }
         }
 
-        function showNewTicketModal() {
+        function createTicketRow(ticket, prefix) {
+            const tr = document.createElement('tr');
+            tr.style.cursor = 'pointer';
+            tr.onclick = () => openDetails(ticket.id, prefix);
+            tr.innerHTML = `
+                <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);">#${prefix}-${ticket.id.toString().padStart(4, '0')}</td>
+                <td style="font-weight: 500;">${ticket.title}</td>
+                <td style="color: var(--text-muted);">${ticket.category ? ticket.category.name : '-'}</td>
+                <td>${getPriorityBadge(ticket.priority)}</td>
+                <td>${getStatusBadge(ticket.status)}</td>
+                <td style="color: var(--text-muted);">${ticket.user ? ticket.user.name : '-'}</td>
+            `;
+            return tr;
+        }
+
+        function showNewTicketModal(isReq = false) {
             document.getElementById('ticketTitle').value = '';
             document.getElementById('ticketDesc').value = '';
+            
+            const cat = document.getElementById('ticketCategory');
+            cat.innerHTML = isReq 
+                ? '<option value="2">Software / License</option><option value="4">Access / Accounts</option>'
+                : '<option value="1">Hardware Issue</option><option value="3">Network / Connectivity</option><option value="4">Other</option>';
+            
             const overlay = document.getElementById('ticketOverlay');
             overlay.style.display = 'flex';
             setTimeout(() => overlay.style.opacity = '1', 10);
@@ -652,7 +761,7 @@
         async function submitTicket() {
             const title = document.getElementById('ticketTitle').value;
             const description = document.getElementById('ticketDesc').value;
-            const category_id = document.getElementById('ticketCategory').value;
+            const category_id = parseInt(document.getElementById('ticketCategory').value);
 
             if (!title || !description) return;
 
@@ -661,6 +770,7 @@
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
                     },
                     body: JSON.stringify({ title, description, category_id, priority: 'medium' })
@@ -670,19 +780,20 @@
                     closeNewTicketModal();
                     loadTickets(); 
                 } else {
-                    alert("Validation Error");
+                    const errorData = await response.json();
+                    alert("Validation Error: " + (errorData.message || 'Helytelen adatok.'));
                 }
             } catch (error) {
                 alert("Connection error.");
             }
         }
 
-        function openDetails(id) {
+        function openDetails(id, prefix = 'INC') {
             const ticket = allTickets.find(t => t.id === id);
             if (!ticket) return;
             currentTicketId = id;
 
-            document.getElementById('detailId').innerText = `#INC-${ticket.id.toString().padStart(4, '0')}`;
+            document.getElementById('detailId').innerText = `#${prefix}-${ticket.id.toString().padStart(4, '0')}`;
             document.getElementById('detailTitle').innerText = ticket.title;
             document.getElementById('detailStatus').innerHTML = getStatusBadge(ticket.status);
             document.getElementById('detailDesc').innerText = ticket.description;
@@ -696,6 +807,12 @@
             } else {
                 document.getElementById('itActions').style.display = 'none';
                 document.getElementById('saveBtn').style.display = 'none';
+            }
+            
+            if (currentUserRole === 3) {
+                document.getElementById('adminActions').style.display = 'block';
+            } else {
+                document.getElementById('adminActions').style.display = 'none';
             }
 
             const overlay = document.getElementById('detailsOverlay');
@@ -719,9 +836,10 @@
 
             try {
                 await fetch('/api/tickets/' + currentTicketId, {
-                    method: 'PUT',
+                    method: 'PATCH',
                     headers: { 
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'Authorization': 'Bearer ' + authToken
                     },
                     body: JSON.stringify({ status: newStatus })
@@ -731,6 +849,26 @@
                 loadTickets();
             } catch (e) {}
             btn.innerText = "Save Changes";
+        }
+
+        async function deleteTicket() {
+            if (currentUserRole !== 3 || !currentTicketId) return;
+            if (!confirm("Are you sure you want to permanently delete this ticket?")) return;
+
+            try {
+                await fetch('/api/tickets/' + currentTicketId, {
+                    method: 'DELETE',
+                    headers: { 
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    }
+                });
+                
+                closeDetailsModal();
+                loadTickets();
+            } catch (e) {
+                alert("Failed to delete ticket.");
+            }
         }
     </script>
 </body>
