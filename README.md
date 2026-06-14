@@ -16,7 +16,7 @@ Accept: application/json
 | Tábla | Szerepe | Fontos mezők |
 | --- | --- | --- |
 | `roles` | Felhasználói szerepkörök | `id`, `name` |
-| `users` | API felhasználók | `id`, `role_id`, `name`, `email`, `password` |
+| `users` | API felhasználók | `id`, `role_id`, `name`, `email`, `password`, `is_approved`, `is_suspended`, `last_seen_at` |
 | `categories` | Hibajegy kategóriák | `id`, `name` |
 | `tickets` | Hibajegyek | `id`, `title`, `description`, `status`, `priority`, `user_id`, `assigned_to`, `category_id` |
 | `tags` | Hibajegy címkék | `id`, `name` |
@@ -48,9 +48,11 @@ A táblázatban szereplő jelölések:
 | **Profil lekérés** `GET /auth/me` | ✅ | ✅ | ✅ |
 | **Token frissítés** `POST /auth/refresh` | ✅ | ✅ | ✅ |
 | **Kijelentkezés** `POST /auth/logout` | ✅ | ✅ | ✅ |
+| **Heartbeat (Státusz)** `POST /auth/heartbeat` | ✅ | ✅ | ✅ |
 | **Kategóriák listája** `GET /categories` | ✅ | ✅ | ✅ |
 | **Címkék listája** `GET /tags` | ✅ | ✅ | ✅ |
 | **Rendszer státusz** `GET /status` | ❌ | ❌ | ✅ |
+| **Felhasználókezelés** `GET, POST, PATCH, DELETE /users/*` | ❌ | ❌ | ✅ |
 | **Hibajegyek listázása** `GET /tickets` | 🔒 csak saját | ✅ mind | ✅ mind |
 | **Hibajegy létrehozása** `POST /tickets` | ✅ | ✅ | ✅ |
 | **Hibajegy megtekintése** `GET /tickets/{id}` | 🔒 csak saját | ✅ | ✅ |
@@ -74,6 +76,9 @@ A táblázatban szereplő jelölések:
 | --- | --- |
 | Jelszótárolás | Bcrypt hash – nyílt jelszó sosem kerül adatbázisba |
 | JWT token érvényesség | 60 perc (konfiguráció: `JWT_TTL` env változó) |
+| Új regisztrációk | Az újonnan regisztrált fiókok (`is_approved = false`) adminisztrátori jóváhagyásig nem léphetnek be. |
+| Felfüggesztés | Felfüggesztett (`is_suspended = true`) fiókkal nem lehet bejelentkezni, aktív munkamenet esetén kijelentkeztetésre kerül. |
+| Online jelenlét | A kliens percenként `/auth/heartbeat` kérést küld. A backend 5 percig tekinti online-nak a felhasználót. |
 | Fájl méretkorlát | max. 10 MB / feltöltés |
 | Engedélyezett fájltípusok | jpg, jpeg, png, gif, webp, pdf, doc, docx, xls, xlsx, ppt, pptx, txt, log, csv, zip, tar, gz, 7z |
 | Assignee korlát | Hibajegyet csak IT Support vagy Admin szerepkörű felhasználóhoz lehet rendelni |
@@ -87,10 +92,11 @@ A táblázatban szereplő jelölések:
 
 | Metódus | Végpont | Jogosultság | Body |
 | --- | --- | --- | --- |
-| `POST` | `/api/auth/register` | Nyilvános | `name`, `email`, `password` |
+| `POST` | `/api/auth/register` | Nyilvános | `name`, `email`, `password` (jóváhagyás szükséges) |
 | `POST` | `/api/auth/login` | Nyilvános | `email`, `password` |
 | `GET` | `/api/auth/me` | Bejelentkezett | nincs |
 | `POST` | `/api/auth/refresh` | Bejelentkezett | nincs |
+| `POST` | `/api/auth/heartbeat` | Bejelentkezett | nincs |
 | `POST` | `/api/auth/logout` | Bejelentkezett | nincs |
 
 Sikeres login válasz:
@@ -120,6 +126,21 @@ Sikeres login válasz:
 | `GET` | `/api/categories` | Bejelentkezett | Kategóriák listája |
 | `GET` | `/api/tags` | Bejelentkezett | Címkék listája |
 | `GET` | `/api/status` | **Csak Admin** | PHP, Laravel, adatbázis és memória státusz |
+
+### Felhasználókezelés (Admin)
+
+Kizárólag Admin szerepkörrel érhető el:
+
+| Metódus | Végpont | Body | Leírás |
+| --- | --- | --- | --- |
+| `GET` | `/api/users` | nincs | Felhasználók listázása |
+| `PATCH` | `/api/users/{user}` | `name`, `email`, `role_id`, `is_approved`, `is_suspended` | Felhasználó adatainak és jogosultságainak módosítása |
+| `PATCH` | `/api/users/{user}/approve` | nincs | Új felhasználó azonnali jóváhagyása |
+| `POST` | `/api/users/{user}/suspend` | nincs | Felhasználó fiókjának felfüggesztése |
+| `POST` | `/api/users/suspend-all` | nincs | Minden nem admin felhasználó felfüggesztése |
+| `POST` | `/api/users/{user}/force-logout` | nincs | Felhasználó azonnali kijelentkeztetése |
+| `POST` | `/api/users/logout-all` | nincs | Minden nem admin felhasználó kijelentkeztetése |
+| `DELETE`| `/api/users/{user}` | nincs | Felhasználó végleges törlése (csak ha nincs hozzárendelt jegye) |
 
 ### Hibajegyek
 
