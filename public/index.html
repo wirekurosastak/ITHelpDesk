@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Helpdesk</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --panel-soft: #1f2937;
+            --border: #334155;
+            --text: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-strong: #0284c7;
+            --danger: #f87171;
+            --success: #34d399;
+            --warning: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--border);
+            background: #0b1120;
+            padding: 24px 16px;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+
+        .nav-button {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            text-align: left;
+        }
+
+        .nav-button:hover,
+        .nav-button.active {
+            background: var(--panel-soft);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .main {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            min-height: 72px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 28px;
+            background: #111827;
+        }
+
+        .user-block {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .panel-padding {
+            padding: 22px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            background: #0b1120;
+        }
+
+        tbody tr.clickable:hover {
+            background: #172033;
+            cursor: pointer;
+        }
+
+        .empty {
+            padding: 32px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            background: var(--panel-soft);
+            color: var(--text);
+        }
+
+        .btn.primary {
+            border-color: var(--accent-strong);
+            background: var(--accent-strong);
+            color: white;
+        }
+
+        .btn.danger {
+            border-color: #7f1d1d;
+            background: #7f1d1d;
+            color: white;
+        }
+
+        .badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge.open { background: #064e3b; color: var(--success); }
+        .badge.in_progress { background: #78350f; color: var(--warning); }
+        .badge.closed { background: #374151; color: #d1d5db; }
+        .badge.high { background: #7f1d1d; color: #fecaca; }
+        .badge.medium { background: #164e63; color: #bae6fd; }
+        .badge.low { background: #374151; color: #d1d5db; }
+
+        .login {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .96);
+            z-index: 10;
+        }
+
+        .login.hidden,
+        .modal.hidden,
+        .view.hidden {
+            display: none;
+        }
+
+        .login-card,
+        .modal-card {
+            width: min(460px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #0b1120;
+            color: var(--text);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .hint,
+        .error {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .hint {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .error {
+            color: var(--danger);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, .82);
+            z-index: 9;
+        }
+
+        .detail-grid,
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .metric {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            background: #0b1120;
+        }
+
+        .metric-title {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 760px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .detail-grid,
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login" id="loginView">
+        <form class="login-card" id="loginForm">
+            <h1>IT Helpdesk</h1>
+            <p class="hint">Jelentkezz be a minta felhasználókkal.</p>
+
+            <div class="field">
+                <label for="email">Email</label>
+                <input id="email" type="email" autocomplete="username" value="employee@company.com">
+            </div>
+
+            <div class="field">
+                <label for="password">Jelszó</label>
+                <input id="password" type="password" autocomplete="current-password" value="password">
+            </div>
+
+            <button class="btn primary" type="submit">Bejelentkezés</button>
+            <div class="error" id="loginError"></div>
+
+            <p class="hint">
+                Employee: employee@company.com / password<br>
+                IT Support: it@company.com / password<br>
+                Admin: admin@company.com / password
+            </p>
+        </form>
+    </div>
+
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">IT Helpdesk</div>
+            <button class="nav-button active" type="button" data-view="ticketsView">Hibajegyek</button>
+            <button class="nav-button" type="button" data-view="statusView">Rendszer státusz</button>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <strong id="pageTitle">Hibajegyek</strong>
+                    <div class="user-block" id="userInfo">Nincs bejelentkezve</div>
+                </div>
+                <button class="btn" type="button" id="logoutButton">Kijelentkezés</button>
+            </header>
+
+            <section class="content view" id="ticketsView">
+                <div class="toolbar">
+                    <h1>Hibajegyek</h1>
+                    <div class="button-row">
+                        <button class="btn" type="button" id="refreshButton">Frissítés</button>
+                        <button class="btn primary" type="button" id="newTicketButton">Új hibajegy</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cím</th>
+                                <th>Kategória</th>
+                                <th>Prioritás</th>
+                                <th>Státusz</th>
+                                <th>Bejelentő</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketRows">
+                            <tr><td colspan="6" class="empty">Nincs betöltött adat.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="content view hidden" id="statusView">
+                <div class="toolbar">
+                    <h1>Rendszer státusz</h1>
+                    <button class="btn" type="button" id="refreshStatusButton">Frissítés</button>
+                </div>
+
+                <div class="panel panel-padding">
+                    <div class="status-grid">
+                        <div class="metric">
+                            <div class="metric-title">Laravel</div>
+                            <div id="statLaravel">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-title">PHP</div>
+                            <div id="statPhp">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-title">Adatbázis</div>
+                            <div id="statDb">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-title">Memória</div>
+                            <div id="statMemory">-</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal hidden" id="ticketModal">
+        <form class="modal-card" id="ticketForm">
+            <h1>Új hibajegy</h1>
+            <div class="field">
+                <label for="ticketTitle">Cím</label>
+                <input id="ticketTitle" required>
+            </div>
+            <div class="field">
+                <label for="ticketDescription">Leírás</label>
+                <textarea id="ticketDescription" required></textarea>
+            </div>
+            <div class="field">
+                <label for="ticketCategory">Kategória</label>
+                <select id="ticketCategory" required></select>
+            </div>
+            <div class="field">
+                <label for="ticketPriority">Prioritás</label>
+                <select id="ticketPriority">
+                    <option value="low">Alacsony</option>
+                    <option value="medium" selected>Közepes</option>
+                    <option value="high">Magas</option>
+                </select>
+            </div>
+            <div class="button-row">
+                <button class="btn primary" type="submit">Mentés</button>
+                <button class="btn" type="button" id="cancelTicketButton">Mégse</button>
+            </div>
+            <div class="error" id="ticketError"></div>
+        </form>
+    </div>
+
+    <div class="modal hidden" id="detailModal">
+        <div class="modal-card">
+            <h1 id="detailTitle">Hibajegy</h1>
+            <p id="detailDescription"></p>
+
+            <div class="detail-grid">
+                <div class="metric">
+                    <div class="metric-title">ID</div>
+                    <div id="detailId"></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Kategória</div>
+                    <div id="detailCategory"></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Prioritás</div>
+                    <div id="detailPriority"></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-title">Bejelentő</div>
+                    <div id="detailUser"></div>
+                </div>
+            </div>
+
+            <div class="field" id="statusField">
+                <label for="detailStatus">Státusz</label>
+                <select id="detailStatus">
+                    <option value="open">Nyitott</option>
+                    <option value="in_progress">Folyamatban</option>
+                    <option value="closed">Lezárt</option>
+                </select>
+            </div>
+
+            <div class="button-row">
+                <button class="btn primary" type="button" id="saveStatusButton">Státusz mentése</button>
+                <button class="btn" type="button" id="closeDetailButton">Bezárás</button>
+            </div>
+            <div class="error" id="detailError"></div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            token: '',
+            user: null,
+            tickets: [],
+            categories: [],
+            selectedTicket: null,
+        };
+
+        const $ = (id) => document.getElementById(id);
+
+        function apiHeaders() {
+            return {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + state.token,
+            };
+        }
+
+        function dataOf(payload) {
+            return payload && Object.prototype.hasOwnProperty.call(payload, 'data') ? payload.data : payload;
+        }
+
+        function badgeElement(value) {
+            const span = document.createElement('span');
+            span.className = 'badge ' + value;
+            span.textContent = value;
+
+            return span;
+        }
+
+        function setTicketMessage(message) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 6;
+            cell.className = 'empty';
+            cell.textContent = message;
+            row.appendChild(cell);
+            $('ticketRows').replaceChildren(row);
+        }
+
+        function appendCell(row, content) {
+            const cell = document.createElement('td');
+
+            if (content instanceof Node) {
+                cell.appendChild(content);
+            } else {
+                cell.textContent = content;
+            }
+
+            row.appendChild(cell);
+        }
+
+        async function apiRequest(url, options = {}) {
+            const response = await fetch(url, options);
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(payload.message || 'Sikertelen kérés.');
+            }
+
+            return dataOf(payload);
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            $('loginError').textContent = '';
+
+            try {
+                const payload = await apiRequest('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: $('email').value,
+                        password: $('password').value,
+                    }),
+                });
+
+                state.token = payload.access_token;
+                state.user = payload.user;
+                $('loginView').classList.add('hidden');
+                $('userInfo').textContent = `${state.user.name} (${state.user.role.name})`;
+
+                await Promise.all([loadCategories(), loadTickets()]);
+            } catch (error) {
+                $('loginError').textContent = error.message;
+            }
+        }
+
+        async function logout() {
+            if (state.token) {
+                await fetch('/api/auth/logout', { method: 'POST', headers: apiHeaders() }).catch(() => {});
+            }
+
+            state.token = '';
+            state.user = null;
+            state.tickets = [];
+            setTicketMessage('Nincs betöltött adat.');
+            $('userInfo').textContent = 'Nincs bejelentkezve';
+            $('loginView').classList.remove('hidden');
+        }
+
+        async function loadCategories() {
+            state.categories = await apiRequest('/api/categories', { headers: apiHeaders() });
+            const options = state.categories.map((category) => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+
+                return option;
+            });
+
+            $('ticketCategory').replaceChildren(...options);
+        }
+
+        async function loadTickets() {
+            const tbody = $('ticketRows');
+            setTicketMessage('Betöltés...');
+
+            try {
+                state.tickets = await apiRequest('/api/tickets', { headers: apiHeaders() });
+
+                if (state.tickets.length === 0) {
+                    setTicketMessage('Nincs hibajegy.');
+                    return;
+                }
+
+                tbody.replaceChildren();
+                for (const ticket of state.tickets) {
+                    const row = document.createElement('tr');
+                    row.className = 'clickable';
+                    row.addEventListener('click', () => openDetails(ticket));
+
+                    appendCell(row, '#' + ticket.id);
+                    appendCell(row, ticket.title);
+                    appendCell(row, ticket.category?.name || '-');
+                    appendCell(row, badgeElement(ticket.priority));
+                    appendCell(row, badgeElement(ticket.status));
+                    appendCell(row, ticket.user?.name || '-');
+                    tbody.appendChild(row);
+                }
+            } catch (error) {
+                setTicketMessage(error.message);
+            }
+        }
+
+        async function loadStatus() {
+            const status = await apiRequest('/api/status', { headers: apiHeaders() });
+            $('statLaravel').textContent = status.laravel_version;
+            $('statPhp').textContent = status.php_version;
+            $('statDb').textContent = status.database;
+            $('statMemory').textContent = status.memory_usage_mb + ' MB';
+        }
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach((view) => view.classList.add('hidden'));
+            document.querySelectorAll('.nav-button').forEach((button) => button.classList.remove('active'));
+
+            $(viewId).classList.remove('hidden');
+            document.querySelector(`[data-view="${viewId}"]`).classList.add('active');
+            $('pageTitle').textContent = viewId === 'statusView' ? 'Rendszer státusz' : 'Hibajegyek';
+
+            if (viewId === 'statusView') {
+                loadStatus().catch((error) => {
+                    $('statLaravel').textContent = error.message;
+                });
+            }
+        }
+
+        function openTicketModal() {
+            $('ticketForm').reset();
+            $('ticketError').textContent = '';
+            $('ticketModal').classList.remove('hidden');
+        }
+
+        function closeTicketModal() {
+            $('ticketModal').classList.add('hidden');
+        }
+
+        async function createTicket(event) {
+            event.preventDefault();
+            $('ticketError').textContent = '';
+
+            try {
+                await apiRequest('/api/tickets', {
+                    method: 'POST',
+                    headers: apiHeaders(),
+                    body: JSON.stringify({
+                        title: $('ticketTitle').value,
+                        description: $('ticketDescription').value,
+                        category_id: Number($('ticketCategory').value),
+                        priority: $('ticketPriority').value,
+                    }),
+                });
+
+                closeTicketModal();
+                await loadTickets();
+            } catch (error) {
+                $('ticketError').textContent = error.message;
+            }
+        }
+
+        function openDetails(ticket) {
+            state.selectedTicket = ticket;
+            $('detailTitle').textContent = ticket.title;
+            $('detailDescription').textContent = ticket.description;
+            $('detailId').textContent = '#' + ticket.id;
+            $('detailCategory').textContent = ticket.category?.name || '-';
+            $('detailPriority').replaceChildren(badgeElement(ticket.priority));
+            $('detailUser').textContent = ticket.user?.name || '-';
+            $('detailStatus').value = ticket.status;
+            $('detailError').textContent = '';
+
+            const canEditStatus = state.user?.role_id > 1;
+            $('statusField').classList.toggle('hidden', !canEditStatus);
+            $('saveStatusButton').classList.toggle('hidden', !canEditStatus);
+            $('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetails() {
+            $('detailModal').classList.add('hidden');
+            state.selectedTicket = null;
+        }
+
+        async function saveStatus() {
+            if (!state.selectedTicket) return;
+            $('detailError').textContent = '';
+
+            try {
+                await apiRequest('/api/tickets/' + state.selectedTicket.id, {
+                    method: 'PATCH',
+                    headers: apiHeaders(),
+                    body: JSON.stringify({ status: $('detailStatus').value }),
+                });
+
+                closeDetails();
+                await loadTickets();
+            } catch (error) {
+                $('detailError').textContent = error.message;
+            }
+        }
+
+        $('loginForm').addEventListener('submit', login);
+        $('logoutButton').addEventListener('click', logout);
+        $('refreshButton').addEventListener('click', loadTickets);
+        $('refreshStatusButton').addEventListener('click', loadStatus);
+        $('newTicketButton').addEventListener('click', openTicketModal);
+        $('cancelTicketButton').addEventListener('click', closeTicketModal);
+        $('ticketForm').addEventListener('submit', createTicket);
+        $('closeDetailButton').addEventListener('click', closeDetails);
+        $('saveStatusButton').addEventListener('click', saveStatus);
+
+        document.querySelectorAll('.nav-button').forEach((button) => {
+            button.addEventListener('click', () => switchView(button.dataset.view));
+        });
+    </script>
+</body>
+</html>
