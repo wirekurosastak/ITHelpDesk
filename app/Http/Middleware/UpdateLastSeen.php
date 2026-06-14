@@ -22,7 +22,10 @@ class UpdateLastSeen
             }
             DB::table('users')
                 ->where('id', $user->getKey())
-                ->update(['last_seen_at' => now()]);
+                ->update([
+                    'last_seen_at' => now(),
+                    'last_ip'      => $ip,
+                ]);
         }
 
         return $next($request);

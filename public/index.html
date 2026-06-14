@@ -14,7 +14,7 @@
 <body>
 
     
-    <div class="overlay" id="loginOverlay" style="align-items: flex-start; padding-top: 12vh;">
+    <div class="overlay" id="loginOverlay" style="align-items: center;">
         <div class="modal" style="max-width: 420px; transition: height 0.3s ease;">
             <div class="reveal-item"
                 style="display: flex; justify-content: center; margin-bottom: 24px; --reveal-delay: 0.0s;">
@@ -179,9 +179,13 @@
     </div>
 
     
+    <div id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
     <div class="main">
         <div class="topbar">
             <div style="display: flex; align-items: center; gap: 8px;">
+                <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Open menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
                 <div class="breathe" id="topbarLedIcon"
                     style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);">
                 </div>
@@ -281,7 +285,7 @@
             </div>
 
             <div class="card glass">
-                <table style="table-layout:fixed;">
+                <table>
                     <thead>
                         <tr>
                             <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Ticket ID</th>
@@ -328,7 +332,7 @@
                 </div>
             </div>
             <div class="card glass">
-                <table style="table-layout:fixed;">
+                <table>
                     <thead>
                         <tr>
                             <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Request ID</th>
@@ -467,7 +471,7 @@
                     style="border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; border: 1px solid; background: rgba(16,185,129,0.15); color: var(--success); border-color: rgba(16,185,129,0.3);">0</span>
             </div>
             <div class="card glass" style="margin-bottom: 32px;">
-                <table style="table-layout:fixed;">
+                <table>
                     <thead>
                         <tr>
                             <th style="width:16%" onclick="sortTable(this)" title="Click to sort">Name</th>
@@ -496,8 +500,8 @@
                 </svg>
                 <span style="font-weight: 600; font-size: 0.95rem;">All Users</span>
             </div>
-            <div class="card glass" style="overflow: visible;">
-                <table style="table-layout:fixed;">
+            <div class="card glass">
+                <table>
                     <thead>
                         <tr>
                             <th style="width:16%" onclick="sortTable(this)" title="Click to sort">Name</th>
@@ -531,7 +535,7 @@
 
             
             <div class="settings-section">
-                <div class="card glass" style="overflow: visible;">
+                <div class="card glass">
                     <div
                         style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
                         Appearance</div>
@@ -552,7 +556,7 @@
             <div id="adminOnlySettings" style="display:none;">
                 
                 <div class="settings-section">
-                    <div class="card glass" style="overflow: visible;">
+                    <div class="card glass">
                         <div
                             style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
                             Pending Approvals Alert Thresholds</div>
@@ -581,7 +585,7 @@
 
             
             <div class="settings-section">
-                <div class="card glass" style="overflow: visible;">
+                <div class="card glass">
                     <div
                         style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
                         Ticket List</div>
@@ -614,7 +618,7 @@
 
     
     <div class="overlay" id="ticketOverlay" style="display: none; opacity: 0;">
-        <div class="modal" style="max-width: 500px;">
+        <div class="modal" style="max-width: 600px;">
             <h2 id="ticketModalTitle">Create New Ticket</h2>
             <p class="subtitle" id="ticketModalSubtitle">Please provide details about the incident.</p>
             <div class="input-group">
@@ -709,7 +713,7 @@
 
     
     <div class="overlay" id="newUserOverlay" style="display: none; opacity: 0;">
-        <div class="modal" style="max-width: 460px;">
+        <div class="modal" style="max-width: 600px;">
             <h2>Create New User</h2>
             <p class="subtitle">User will be created as active with the selected role.</p>
             <div class="input-group">
@@ -743,7 +747,7 @@
     </div>
     
     <div class="overlay" id="changePasswordOverlay" style="display: none; opacity: 0;">
-        <div class="modal" style="max-width: 420px;">
+        <div class="modal" style="max-width: 600px;">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
                 <div
                     style="width:40px; height:40px; background:linear-gradient(135deg,var(--accent),#ec4899); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">

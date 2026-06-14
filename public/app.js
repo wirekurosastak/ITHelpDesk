@@ -636,6 +636,7 @@
         }
 
         function switchTab(tabId) {
+            if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
             ['incident', 'service', 'status', 'users', 'settings'].forEach(id => {
                 document.getElementById('tab-' + id).style.display = 'none';
                 document.getElementById('nav-' + id)?.classList.remove('active');
@@ -1482,3 +1483,18 @@ window.copyDemoText = function(el) {
         document.body.removeChild(textArea);
     }
 };
+
+window.toggleMobileSidebar = function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+};
+
+window.closeMobileSidebar = function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+};
+

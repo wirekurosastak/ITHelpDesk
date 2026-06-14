@@ -229,10 +229,12 @@ cp .env.example .env
 php artisan key:generate
 php artisan jwt:secret
 php artisan migrate:fresh --seed
-php artisan serve
+php artisan serve --host=0.0.0.0
 ```
 
-Laragon alatt a `ITHelpDesk` mappa állítható be projektként. A böngészős kliens a `http://127.0.0.1:8000/index.html` címen nyitható meg; a gyökér URL is ide irányít át. SQLite az alapértelmezett adatbázis, ezért külön MySQL konfiguráció nem szükséges.
+Laragon alatt a `ITHelpDesk` mappa állítható be projektként. A böngészős kliens PC-n a `http://localhost:8000/index.html` címen nyitható meg; a gyökér URL is ide irányít át. SQLite az alapértelmezett adatbázis, ezért külön MySQL konfiguráció nem szükséges.
+
+> **Megjegyzés a `--host=0.0.0.0` kapcsolóhoz:** Ezzel az utasítással a beépített fejlesztői szerver minden hálózati csatolón figyelni fog. Erre azért van szükség, hogy **telefonról vagy tabletről is le lehessen tesztelni a reszponzív nézeteket** és a kliens oldali LAN IP érzékelést (amennyiben egy WiFi hálózaton vannak). Mobilon a számítógép helyi IP címén lehet elérni a felületet (pl. `http://192.168.0.15:8000`), amit Windows alatt az `ipconfig` paranccsal lehet lekérdezni.
 
 ## Mintaadatok
 
