@@ -9,17 +9,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UpdateLastSeen
 {
-    /**
-     * Update the authenticated user's last_seen_at timestamp on every API request.
-     * Uses a raw DB update to avoid touching model timestamps.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth('api')->user();
 
         if ($user) {
+            $ip = $request->ip();
+            if ($ip === '::1') {
+                $ip = '127.0.0.1';
+            } elseif (str_starts_with($ip, '::ffff:')) {
+                $ip = substr($ip, 7);
+            }
             DB::table('users')
                 ->where('id', $user->getKey())
                 ->update(['last_seen_at' => now()]);

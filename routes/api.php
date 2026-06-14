@@ -30,8 +30,11 @@ Route::middleware('auth:api')->group(function (): void {
     Route::post('tickets/{ticket}/attachments', [AttachmentController::class, 'store']);
     Route::get('attachments/{attachment}/download', [AttachmentController::class, 'download']);
 
-    Route::middleware('role:admin')->group(function (): void {
+    Route::middleware('role:admin,it_support')->group(function (): void {
         Route::get('status', SystemStatusController::class);
+    });
+
+    Route::middleware('role:admin')->group(function (): void {
         Route::post('status/clear-cache', [SystemStatusController::class, 'clearCache']);
 
         Route::delete('tickets/{ticket}', [TicketController::class, 'destroy']);

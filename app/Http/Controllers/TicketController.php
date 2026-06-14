@@ -107,18 +107,15 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket): JsonResponse
     {
-        // Collect file paths BEFORE cascading DB delete wipes the attachment rows
+
         $filePaths = $ticket->attachments()->pluck('file_path')->all();
 
         $ticket->delete();
 
-        // Remove the actual files from storage to prevent leaking orphaned files
         Storage::delete($filePaths);
 
         return response()->json(null, 204);
     }
-
-    // authorizeTicketAccess() is provided by the AuthorizesTicketAccess trait
 
     private function authorizeTicketUpdate(Ticket $ticket, User $user): void
     {
@@ -144,9 +141,6 @@ class TicketController extends Controller
         ]);
     }
 
-    /**
-     * @param  array<string, mixed>  $validated
-     */
     private function validateAssignee(array $validated): void
     {
         if (! array_key_exists('assigned_to', $validated) || $validated['assigned_to'] === null) {

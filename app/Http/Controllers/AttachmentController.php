@@ -58,6 +58,4 @@ class AttachmentController extends Controller
 
         return Storage::download($attachment->file_path, $attachment->original_name);
     }
-
-    // authorizeTicketAccess() is provided by the AuthorizesTicketAccess trait
 }

@@ -50,7 +50,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role_id' => Role::EMPLOYEE_ID,
-            'is_approved' => false,   // must be approved by Admin before login
+            'is_approved' => false,
         ]);
 
         return response()->json([
@@ -91,9 +91,17 @@ class AuthController extends Controller
         return $this->respondWithToken(auth('api')->refresh(), 'Token refreshed successfully.');
     }
 
-    /** Lightweight ping – UpdateLastSeen middleware already wrote last_seen_at. */
-    public function heartbeat(): JsonResponse
+    public function heartbeat(\Illuminate\Http\Request $request): JsonResponse
     {
+        $user = auth('api')->user();
+
+        if ($user && $request->filled('ip')) {
+            $ip = filter_var($request->input('ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+            if ($ip) {
+                $user->update(['last_ip' => $ip]);
+            }
+        }
+
         return response()->json(null, 204);
     }
 

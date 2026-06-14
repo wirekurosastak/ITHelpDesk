@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserAdministrationService
 {
-    /**
-     * @param  array{name: string, email: string, password: string, role_id?: int}  $attributes
-     */
     public function createApprovedUser(array $attributes): User
     {
         return DB::transaction(fn (): User => User::create([
@@ -38,9 +35,6 @@ class UserAdministrationService
         });
     }
 
-    /**
-     * @param  array{role_id?: int, is_suspended?: bool}  $attributes
-     */
     public function update(User $user, array $attributes): User
     {
         return DB::transaction(function () use ($user, $attributes): User {
@@ -56,6 +50,7 @@ class UserAdministrationService
             $user->update([
                 'is_approved' => false,
                 'is_suspended' => true,
+                'last_seen_at' => null,
             ]);
 
             return $user->refresh();
@@ -69,6 +64,7 @@ class UserAdministrationService
     public function forceLogout(User $user): void
     {
         Cache::put($user->forceLogoutCacheKey(), true, $this->forceLogoutTtl());
+        $user->update(['last_seen_at' => null]);
     }
 
     public function forceLogoutAllNonAdmins(): int
@@ -80,6 +76,8 @@ class UserAdministrationService
             true,
             $this->forceLogoutTtl()
         ));
+
+        User::query()->whereKey($users->modelKeys())->update(['last_seen_at' => null]);
 
         return $users->count();
     }
@@ -94,6 +92,7 @@ class UserAdministrationService
                 ->update([
                     'is_approved' => false,
                     'is_suspended' => true,
+                    'last_seen_at' => null,
                 ]);
 
             return $users;
@@ -108,9 +107,6 @@ class UserAdministrationService
         return $users->count();
     }
 
-    /**
-     * @return Collection<int, User>
-     */
     private function nonAdminUsers(): Collection
     {
         return User::query()

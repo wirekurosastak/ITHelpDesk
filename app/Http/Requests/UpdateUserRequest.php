@@ -13,9 +13,6 @@ class UpdateUserRequest extends FormRequest
         return $this->user('api')?->isAdmin() === true;
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
         return [

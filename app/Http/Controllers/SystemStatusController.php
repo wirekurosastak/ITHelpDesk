@@ -36,14 +36,10 @@ class SystemStatusController extends Controller
         ]);
     }
 
-    /**
-     * Clear all application caches (admin only).
-     */
     public function clearCache(): JsonResponse
     {
         Artisan::call('optimize:clear');
 
-        // Reset uptime counter so it reflects fresh start
         Cache::forget('app_start_timestamp');
 
         return response()->json([

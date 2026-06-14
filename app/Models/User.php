@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,38 +11,30 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at'];
+    protected $fillable = ['name', 'email', 'password', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at', 'last_ip'];
 
     protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'role_id'           => 'integer',
-            'is_approved'       => 'boolean',
-            'is_suspended'      => 'boolean',
-            'last_seen_at'      => 'datetime',
+            'password' => 'hashed',
+            'role_id' => 'integer',
+            'is_approved' => 'boolean',
+            'is_suspended' => 'boolean',
+            'last_seen_at' => 'datetime',
         ];
     }
 
-    /** User is considered online if seen within the last 5 minutes. */
     public function isOnline(): bool
     {
         return $this->last_seen_at !== null
             && $this->last_seen_at->greaterThan(now()->subMinutes(5));
     }
 
-    /** Eloquent accessor – allows ->append('is_online') in collections. */
     public function getIsOnlineAttribute(): bool
     {
         return $this->isOnline();
@@ -55,9 +45,6 @@ class User extends Authenticatable implements JWTSubject
         return $this->getKey();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getJWTCustomClaims(): array
     {
         return [];
@@ -83,9 +70,6 @@ class User extends Authenticatable implements JWTSubject
         return "force_logout:{$this->getKey()}";
     }
 
-    /**
-     * @param  array<int, string>  $roles
-     */
     public function hasAnyRole(array $roles): bool
     {
         $roleIds = array_filter(array_map(fn (string $role): ?int => Role::idFor($role), $roles));

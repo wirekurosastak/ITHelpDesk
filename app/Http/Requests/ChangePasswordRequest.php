@@ -11,9 +11,6 @@ class ChangePasswordRequest extends FormRequest
         return $this->user('api') !== null;
     }
 
-    /**
-     * @return array<string, array<int, string>>
-     */
     public function rules(): array
     {
         return [

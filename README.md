@@ -51,7 +51,7 @@ A táblázatban szereplő jelölések:
 | **Heartbeat (Státusz)** `POST /auth/heartbeat` | ✅ | ✅ | ✅ |
 | **Kategóriák listája** `GET /categories` | ✅ | ✅ | ✅ |
 | **Címkék listája** `GET /tags` | ✅ | ✅ | ✅ |
-| **Rendszer státusz** `GET /status` | ❌ | ❌ | ✅ |
+| **Rendszer státusz** `GET /status` | ❌ | ✅ | ✅ |
 | **Felhasználókezelés** `GET, POST, PATCH, DELETE /users/*` | ❌ | ❌ | ✅ |
 | **Hibajegyek listázása** `GET /tickets` | 🔒 csak saját | ✅ mind | ✅ mind |
 | **Hibajegy létrehozása** `POST /tickets` | ✅ | ✅ | ✅ |
@@ -125,7 +125,7 @@ Sikeres login válasz:
 | --- | --- | --- | --- |
 | `GET` | `/api/categories` | Bejelentkezett | Kategóriák listája |
 | `GET` | `/api/tags` | Bejelentkezett | Címkék listája |
-| `GET` | `/api/status` | **Csak Admin** | PHP, Laravel, adatbázis és memória státusz |
+| `GET` | `/api/status` | IT Support / Admin | PHP, Laravel, adatbázis és memória státusz |
 
 ### Felhasználókezelés (Admin)
 
@@ -238,7 +238,7 @@ Laragon alatt a `ITHelpDesk` mappa állítható be projektként. A böngészős 
 
 | Szerepkör | Név | Email | Jelszó |
 | --- | --- | --- | --- |
-| Employee | `Beadandó Ötös` | `employee@company.com` | `password` |
+| Employee | `Teszt Elek` | `employee@company.com` | `password` |
 | IT Support | `Szőllősi Martin` | `it@company.com` | `password` |
 | Admin | `Balla Tamás` | `admin@company.com` | `password` |
 

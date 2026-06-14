@@ -18,7 +18,7 @@ class UserController extends Controller
         $users = User::with('role')
             ->orderBy('is_approved')
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'name', 'email', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at', 'created_at'])
+            ->get(['id', 'name', 'email', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at', 'last_ip', 'created_at'])
             ->each(fn (User $u) => $u->append('is_online'));
 
         return response()->json(['data' => $users]);
