@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class AttachmentController extends Controller
 {
@@ -23,14 +24,20 @@ class AttachmentController extends Controller
         $file = $request->file('file');
         $path = $file->store('attachments');
 
-        $attachment = Attachment::create([
-            'ticket_id' => $ticket->id,
-            'uploaded_by' => $user->id,
-            'file_path' => $path,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'size' => $file->getSize() ?: 0,
-        ]);
+        try {
+            $attachment = Attachment::create([
+                'ticket_id' => $ticket->id,
+                'uploaded_by' => $user->id,
+                'file_path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'size' => $file->getSize() ?: 0,
+            ]);
+        } catch (Throwable $e) {
+            Storage::delete($path);
+
+            throw $e;
+        }
 
         return response()->json([
             'message' => 'Attachment uploaded successfully.',

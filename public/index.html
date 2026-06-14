@@ -408,35 +408,180 @@
             background: var(--surface-hover);
         }
 
+        /* Action button transitions */
+        .btn-approve,
+        .btn-reject,
+        .btn-del-user,
+        .btn-logout-user,
+        .btn-suspend-user {
+            transition: background 0.2s ease, border-color 0.2s ease !important;
+        }
+
         /* Inline select for user management - matches button height */
-        .inline-select {
-            height: 40px;
-            padding: 0 10px;
+        /* Custom styled inline dropdown for role management */
+        .inline-select-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .inline-select-trigger {
+            height: 34px;
+            padding: 0 24px 0 10px;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--surface);
-            color: var(--text-main);
             font-family: 'Outfit', sans-serif;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
+            display: inline-flex;
+            align-items: center;
+            transition: border-color 0.2s, background-color 0.2s;
+            position: relative;
+            white-space: nowrap;
         }
 
-        .inline-select:hover {
+        .inline-select-trigger:after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 55%;
+            transform: translateY(-50%);
+            border: 4px solid transparent;
+            border-top-color: currentColor;
+            pointer-events: none;
+        }
+
+        .inline-select-trigger:hover {
             border-color: var(--accent);
+            background: var(--surface-hover);
         }
 
-        .inline-select option {
+        .inline-select-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            min-width: 120px;
             background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            overflow: hidden;
+            padding: 4px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .inline-select-dropdown.open {
+            display: block;
+        }
+
+        .inline-select-option {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .inline-select-option:hover {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+
+        /* Custom styled dropdowns for modals */
+        .custom-select-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            height: 42px;
+            padding: 0 36px 0 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
             color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .custom-select-trigger:after {
+            content: '';
+            position: absolute;
+            right: 16px;
+            top: 55%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-container.open .custom-select-trigger {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .custom-select-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            z-index: 110;
+            overflow: hidden;
+            padding: 4px;
+            box-sizing: border-box;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .custom-select-container.open .custom-select-dropdown {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text-main);
+            text-align: left;
+        }
+
+        .custom-select-option:hover {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+
+        /* Hide all number input spinner arrows completely */
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         /* Section header with SVG icon (replaces emojis) */
@@ -575,6 +720,11 @@
             transition: background 0.2s;
         }
 
+        tr.has-open-dropdown {
+            position: relative;
+            z-index: 10;
+        }
+
         tbody tr:hover {
             background: rgba(255, 255, 255, 0.03);
         }
@@ -593,9 +743,9 @@
         }
 
         .badge-open {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .badge-progress {
@@ -605,9 +755,9 @@
         }
 
         .badge-closed {
-            background: rgba(156, 163, 175, 0.1);
-            color: var(--text-muted);
-            border: 1px solid rgba(156, 163, 175, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .badge-high {
@@ -620,6 +770,24 @@
             background: rgba(99, 102, 241, 0.1);
             color: var(--accent);
             border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .badge-low {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(156, 163, 175, 0.2);
+        }
+
+        @keyframes pulse-online {
+
+            0%,
+            100% {
+                box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+            }
+
+            50% {
+                box-shadow: 0 0 14px rgba(16, 185, 129, 0.9);
+            }
         }
 
         .overlay {
@@ -802,17 +970,6 @@
             margin-bottom: 20px;
         }
 
-        /* Light mode: option dropdown bg */
-        [data-theme="light"] option {
-            background: #ffffff;
-            color: #111827;
-        }
-
-        [data-theme="light"] .inline-select option {
-            background: #ffffff;
-            color: #111827;
-        }
-
         /* Consistent table cell font size */
         td {
             font-size: 0.9rem;
@@ -823,6 +980,47 @@
             margin: 0;
             padding: 0;
             font-family: 'Outfit', sans-serif;
+            cursor: default;
+        }
+
+        /* Pointer cursor for interactive elements */
+        a,
+        button,
+        [onclick],
+        .btn,
+        .nav-item,
+        th,
+        .inline-select-trigger,
+        .inline-select-option,
+        .custom-select-trigger,
+        .custom-select-option,
+        .toggle-slider,
+        select,
+        option,
+        .avatar {
+            cursor: pointer !important;
+        }
+
+        /* Text cursor for text input elements */
+        input,
+        textarea {
+            cursor: text !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        /* Prevent text selection on interactive/layout components only */
+        .sidebar,
+        .topbar,
+        .btn,
+        .badge,
+        th,
+        .inline-select,
+        .section-header,
+        h2,
+        label {
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
@@ -1041,7 +1239,8 @@
         }
 
         tr {
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.2s;
+            will-change: transform;
         }
 
         tbody tr:hover {
@@ -1064,9 +1263,9 @@
         }
 
         .badge-open {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .badge-progress {
@@ -1076,9 +1275,9 @@
         }
 
         .badge-closed {
-            background: rgba(156, 163, 175, 0.1);
-            color: var(--text-muted);
-            border: 1px solid rgba(156, 163, 175, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .badge-high {
@@ -1091,6 +1290,12 @@
             background: rgba(99, 102, 241, 0.1);
             color: var(--accent);
             border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .badge-low {
+            background: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid rgba(156, 163, 175, 0.2);
         }
 
         /* Overlays / Modals */
@@ -1210,7 +1415,11 @@
                 <span class="reveal-item" style="--reveal-delay: 0.15s;">Welcome</span>
                 <span class="reveal-item" style="--reveal-delay: 0.25s;">to</span>
                 <span style="white-space:nowrap;">
-                    <span class="nexus-letter" style="--reveal-delay: 0.35s; --color-delay: -2.4s">N</span><span class="nexus-letter" style="--reveal-delay: 0.45s; --color-delay: -1.8s">e</span><span class="nexus-letter" style="--reveal-delay: 0.55s; --color-delay: -1.2s">x</span><span class="nexus-letter" style="--reveal-delay: 0.65s; --color-delay: -0.6s">u</span><span class="nexus-letter" style="--reveal-delay: 0.75s; --color-delay: 0.0s">s</span>
+                    <span class="nexus-letter" style="--reveal-delay: 0.35s; --color-delay: -2.4s">N</span><span
+                        class="nexus-letter" style="--reveal-delay: 0.45s; --color-delay: -1.8s">e</span><span
+                        class="nexus-letter" style="--reveal-delay: 0.55s; --color-delay: -1.2s">x</span><span
+                        class="nexus-letter" style="--reveal-delay: 0.65s; --color-delay: -0.6s">u</span><span
+                        class="nexus-letter" style="--reveal-delay: 0.75s; --color-delay: 0.0s">s</span>
                 </span>
             </h2>
 
@@ -1455,16 +1664,16 @@
             </div>
 
             <div class="card glass">
-                <table>
+                <table style="table-layout:fixed;">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(this)" title="Click to sort">Ticket ID</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Subject</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Category</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Priority</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Status</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Requester</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Date</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Ticket ID</th>
+                            <th style="width:28%" onclick="sortTable(this)" title="Click to sort">Subject</th>
+                            <th style="width:17%" onclick="sortTable(this)" title="Click to sort">Category</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Priority</th>
+                            <th style="width:12%" onclick="sortTable(this)" title="Click to sort">Status</th>
+                            <th style="width:13%" onclick="sortTable(this)" title="Click to sort">Requester</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Date</th>
                         </tr>
                     </thead>
                     <tbody id="ticketTableBody">
@@ -1497,21 +1706,21 @@
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        New Request
+                        Create New Request
                     </button>
                 </div>
             </div>
             <div class="card glass">
-                <table>
+                <table style="table-layout:fixed;">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(this)" title="Click to sort">Request ID</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Subject</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Category</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Priority</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Status</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Requester</th>
-                            <th onclick="sortTable(this)" title="Click to sort">Date</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Request ID</th>
+                            <th style="width:28%" onclick="sortTable(this)" title="Click to sort">Subject</th>
+                            <th style="width:17%" onclick="sortTable(this)" title="Click to sort">Category</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Priority</th>
+                            <th style="width:12%" onclick="sortTable(this)" title="Click to sort">Status</th>
+                            <th style="width:13%" onclick="sortTable(this)" title="Click to sort">Requester</th>
+                            <th style="width:10%" onclick="sortTable(this)" title="Click to sort">Date</th>
                         </tr>
                     </thead>
                     <tbody id="requestTableBody">
@@ -1600,8 +1809,8 @@
                         </svg>
                         Refresh
                     </button>
-                    <button class="btn btn-secondary" onclick="logoutAllUsers()"
-                        style="color:var(--warning); border-color:rgba(245,158,11,0.4);">
+                    <button class="btn btn-secondary" onclick="armButton(this, logoutAllUsers)"
+                        style="color:var(--text-muted); border-color:rgba(156,163,175,0.4);">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -1610,8 +1819,8 @@
                         </svg>
                         Logout All
                     </button>
-                    <button class="btn btn-secondary" onclick="suspendAllUsers()"
-                        style="color:var(--danger); border-color:rgba(239,68,68,0.4);">
+                    <button class="btn btn-secondary" onclick="armButton(this, suspendAllUsers)"
+                        style="color:var(--warning); border-color:rgba(245,158,11,0.4);">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -1644,11 +1853,11 @@
                 <table style="table-layout:fixed;">
                     <thead>
                         <tr>
-                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Name</th>
-                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Email</th>
-                            <th style="width:20%" onclick="sortTable(this)" title="Click to sort">Registered</th>
-                            <th style="width:20%"></th>
-                            <th style="width:20%">Action</th>
+                            <th style="width:16%" onclick="sortTable(this)" title="Click to sort">Name</th>
+                            <th style="width:22%" onclick="sortTable(this)" title="Click to sort">Email</th>
+                            <th style="width:15%" onclick="sortTable(this)" title="Click to sort">Registered</th>
+                            <th style="width:15%"></th>
+                            <th style="width:32%">Action</th>
                         </tr>
                     </thead>
                     <tbody id="pendingTableBody">
@@ -1670,7 +1879,7 @@
                 </svg>
                 <span style="font-weight: 600; font-size: 0.95rem;">All Users</span>
             </div>
-            <div class="card glass">
+            <div class="card glass" style="overflow: visible;">
                 <table style="table-layout:fixed;">
                     <thead>
                         <tr>
@@ -1736,7 +1945,7 @@
                                 <div class="settings-desc">Show yellow badge when pending count reaches this number
                                 </div>
                             </div>
-                            <input type="number" id="settingWarnAt" min="1" max="99" value="3"
+                            <input type="number" id="settingWarnAt" min="1" max="99" value="1"
                                 oninput="markSettingsDirty()"
                                 style="width: 80px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: Outfit, sans-serif; font-size: 0.9rem; text-align: center;">
                         </div>
@@ -1745,7 +1954,7 @@
                                 <div class="settings-label" style="color: var(--danger);">⬤ Critical</div>
                                 <div class="settings-desc">Show red badge when pending count reaches this number</div>
                             </div>
-                            <input type="number" id="settingDangerAt" min="1" max="99" value="6"
+                            <input type="number" id="settingDangerAt" min="1" max="99" value="3"
                                 oninput="markSettingsDirty()"
                                 style="width: 80px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: Outfit, sans-serif; font-size: 0.9rem; text-align: center;">
                         </div>
@@ -1765,11 +1974,11 @@
                             <div class="settings-desc">Automatically reload the ticket list in the background</div>
                         </div>
                         <label class="toggle">
-                            <input type="checkbox" id="settingAutoRefresh" onchange="onAutoRefreshToggle()">
+                            <input type="checkbox" id="settingAutoRefresh" checked onchange="onAutoRefreshToggle()">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
-                    <div class="settings-row" id="refreshIntervalRow" style="opacity:0.4; pointer-events:none;">
+                    <div class="settings-row" id="refreshIntervalRow">
                         <div>
                             <div class="settings-label">Refresh Interval</div>
                             <div class="settings-desc">How often to refresh the ticket list (minutes)</div>
@@ -1789,8 +1998,8 @@
     <!-- Modals -->
     <div class="overlay" id="ticketOverlay" style="display: none; opacity: 0;">
         <div class="modal" style="max-width: 500px;">
-            <h2>Create New Ticket</h2>
-            <p class="subtitle">Please provide details about the incident.</p>
+            <h2 id="ticketModalTitle">Create New Ticket</h2>
+            <p class="subtitle" id="ticketModalSubtitle">Please provide details about the incident.</p>
             <div class="input-group">
                 <label>Subject</label>
                 <input type="text" id="ticketTitle" placeholder="Brief summary of the issue">
@@ -1810,7 +2019,8 @@
             </div>
             <div style="display: flex; gap: 12px; margin-top: 32px;">
                 <button class="btn btn-secondary" style="flex: 1;" onclick="closeNewTicketModal()">Cancel</button>
-                <button class="btn btn-primary" style="flex: 1;" onclick="submitTicket()">Submit Incident</button>
+                <button class="btn btn-primary" style="flex: 1;" id="ticketSubmitBtn" onclick="submitTicket()">Submit
+                    Ticket</button>
             </div>
         </div>
     </div>
@@ -1820,7 +2030,7 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
                 <div>
                     <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;"
-                        id="detailId">#INC-0000</div>
+                        id="detailId">#TIC-0000</div>
                     <h2 id="detailTitle" style="margin-bottom: 0;">Ticket Details</h2>
                 </div>
                 <span id="detailStatus"></span>
@@ -1879,13 +2089,133 @@
     </div>
 
     <script>
-        let authToken = localStorage.getItem('nexus_token') || "";
-        let currentUserRole = parseInt(localStorage.getItem('nexus_role')) || 1;
+        let authToken = sessionStorage.getItem('nexus_token') || "";
+        let currentUserRole = parseInt(sessionStorage.getItem('nexus_role')) || 1;
         let allTickets = [];
         let currentTicketId = null;
         let statusUptimeInterval = null;
         let autoRefreshInterval = null;
+        let heartbeatInterval = null;
+        let usersRefreshInterval = null;
         let statusStartTs = null;
+
+        // Close custom inline selects when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.inline-select-dropdown.open').forEach(d => {
+                d.classList.remove('open');
+                const row = d.closest('tr');
+                if (row) row.classList.remove('has-open-dropdown');
+            });
+            document.querySelectorAll('.custom-select-container.open').forEach(c => {
+                c.classList.remove('open');
+            });
+        });
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+        }
+
+        function syncCustomSelect(select) {
+            if (typeof select === 'string') select = document.getElementById(select);
+            if (!select) return;
+            const container = select.nextElementSibling;
+            if (!container || !container.classList.contains('custom-select-container')) return;
+            const trigger = container.querySelector('.custom-select-trigger');
+            const selectedOption = select.options[select.selectedIndex];
+
+            const colorsMap = {
+                'low': '#9ca3af',
+                'medium': 'var(--accent)',
+                'high': 'var(--danger)',
+                'open': 'var(--success)',
+                'in_progress': 'var(--warning)',
+                'closed': '#9ca3af',
+            };
+
+            if (selectedOption && trigger) {
+                trigger.innerText = selectedOption.text;
+                const color = colorsMap[selectedOption.value];
+                if (color) {
+                    trigger.style.color = color;
+                    trigger.style.fontWeight = '600';
+                } else {
+                    trigger.style.color = '';
+                    trigger.style.fontWeight = '';
+                }
+            }
+            const dropdown = container.querySelector('.custom-select-dropdown');
+            if (dropdown) {
+                dropdown.innerHTML = '';
+                Array.from(select.options).forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'custom-select-option';
+                    div.innerText = opt.text;
+                    div.dataset.value = opt.value;
+
+                    const color = colorsMap[opt.value];
+                    if (color) {
+                        div.style.color = color;
+                        div.style.fontWeight = '600';
+                    }
+
+                    div.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        select.value = opt.value;
+                        select.dispatchEvent(new Event('change'));
+                        trigger.innerText = opt.text;
+                        if (color) {
+                            trigger.style.color = color;
+                            trigger.style.fontWeight = '600';
+                        } else {
+                            trigger.style.color = '';
+                            trigger.style.fontWeight = '';
+                        }
+                        container.classList.remove('open');
+                    });
+                    dropdown.appendChild(div);
+                });
+            }
+        }
+
+        function convertSelectToCustom(select) {
+            if (typeof select === 'string') select = document.getElementById(select);
+            if (!select) return;
+            if (select.dataset.converted === 'true') {
+                syncCustomSelect(select);
+                return;
+            }
+            select.style.display = 'none';
+            select.dataset.converted = 'true';
+
+            const container = document.createElement('div');
+            container.className = 'custom-select-container';
+
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'custom-select-dropdown';
+
+            container.appendChild(trigger);
+            container.appendChild(dropdown);
+            select.parentNode.insertBefore(container, select.nextSibling);
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-select-container.open').forEach(c => {
+                    if (c !== container) c.classList.remove('open');
+                });
+                container.classList.toggle('open');
+            });
+
+            syncCustomSelect(select);
+        }
 
         function setBtnRefreshing(btn) {
             if (!btn || btn.tagName !== 'BUTTON') return null;
@@ -1907,15 +2237,15 @@
         // ─── Settings (localStorage persisted) ─────────────────────────────
         let settings = {
             darkMode: true,
-            warnAt: 3,
-            dangerAt: 6,
-            autoRefresh: false,
-            refreshInterval: 60,
+            warnAt: 1,
+            dangerAt: 3,
+            autoRefresh: true,
+            refreshInterval: 5,
         };
 
         // ─── Per-account settings key ───────────────────────────────────
         function getSettingsKey() {
-            return 'nexus_settings_' + (localStorage.getItem('nexus_user_id') || 'guest');
+            return 'nexus_settings_' + (sessionStorage.getItem('nexus_user_id') || 'guest');
         }
 
         function loadSettingsUI() {
@@ -1954,8 +2284,8 @@
             settings.darkMode = document.getElementById('settingDarkMode').checked;
             settings.autoRefresh = document.getElementById('settingAutoRefresh').checked;
             settings.refreshInterval = parseInt(document.getElementById('settingRefreshInterval').value) || 5;
-            if (document.getElementById('settingWarnAt')) settings.warnAt = parseInt(document.getElementById('settingWarnAt').value) || 3;
-            if (document.getElementById('settingDangerAt')) settings.dangerAt = parseInt(document.getElementById('settingDangerAt').value) || 6;
+            if (document.getElementById('settingWarnAt')) settings.warnAt = parseInt(document.getElementById('settingWarnAt').value) || 1;
+            if (document.getElementById('settingDangerAt')) settings.dangerAt = parseInt(document.getElementById('settingDangerAt').value) || 3;
             localStorage.setItem(getSettingsKey(), JSON.stringify(settings));
             applySettings();
             const btn = document.getElementById('saveSettingsBtn');
@@ -2083,8 +2413,8 @@
             if (newPw !== confirm) {
                 errEl.innerText = 'New passwords do not match.'; errEl.style.display = 'block'; return;
             }
-            if (newPw.length < 6) {
-                errEl.innerText = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return;
+            if (newPw.length < 8) {
+                errEl.innerText = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return;
             }
 
             btn.disabled = true; btn.innerText = 'Saving...';
@@ -2200,9 +2530,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Convert standard dropdowns to custom Nexus ones
+            ['newUserRole', 'ticketCategory', 'updateStatus', 'updatePriority'].forEach(convertSelectToCustom);
+
             if (authToken) {
-                const userName = localStorage.getItem('nexus_name') || 'Agent';
-                const userEmail = localStorage.getItem('nexus_email') || '';
+                const userName = sessionStorage.getItem('nexus_name') || 'Agent';
+                const userEmail = sessionStorage.getItem('nexus_email') || '';
                 document.getElementById('userName').innerText = userName;
                 document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
                 document.getElementById('userAvatar').innerText = userName.substring(0, 2).toUpperCase();
@@ -2241,11 +2574,11 @@
                 if (response.ok && data.access_token) {
                     authToken = data.access_token;
                     currentUserRole = data.user.role_id;
-                    localStorage.setItem('nexus_token', authToken);
-                    localStorage.setItem('nexus_role', currentUserRole);
-                    localStorage.setItem('nexus_name', data.user.name);
-                    localStorage.setItem('nexus_email', data.user.email);
-                    localStorage.setItem('nexus_user_id', data.user.id);
+                    sessionStorage.setItem('nexus_token', authToken);
+                    sessionStorage.setItem('nexus_role', currentUserRole);
+                    sessionStorage.setItem('nexus_name', data.user.name);
+                    sessionStorage.setItem('nexus_email', data.user.email);
+                    sessionStorage.setItem('nexus_user_id', data.user.id);
                     document.getElementById('userName').innerText = data.user.name;
                     document.getElementById('userRoleBadge').innerText = currentUserRole === 3 ? 'ADMIN' : (currentUserRole === 2 ? 'IT SUPPORT' : 'EMPLOYEE');
                     document.getElementById('userAvatar').innerText = data.user.name.substring(0, 2).toUpperCase();
@@ -2257,6 +2590,7 @@
                     setTimeout(() => overlay.style.display = 'none', 300);
 
                     switchTab('incident');
+                    startHeartbeat();
                     loadSettingsUI();
                 } else {
                     document.getElementById('loginError').innerText = data.message || "Authentication failed.";
@@ -2283,10 +2617,11 @@
             } catch (e) { }
 
             authToken = "";
-            localStorage.removeItem('nexus_token');
-            localStorage.removeItem('nexus_role');
-            localStorage.removeItem('nexus_name');
-            localStorage.removeItem('nexus_user_id');
+            sessionStorage.removeItem('nexus_token');
+            sessionStorage.removeItem('nexus_role');
+            sessionStorage.removeItem('nexus_name');
+            sessionStorage.removeItem('nexus_email');
+            sessionStorage.removeItem('nexus_user_id');
 
             const emptyRow = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
             document.getElementById('ticketTableBody').innerHTML = emptyRow;
@@ -2304,6 +2639,8 @@
 
             // Stop any live uptime ticker
             if (statusUptimeInterval) { clearInterval(statusUptimeInterval); statusUptimeInterval = null; }
+            if (usersRefreshInterval) { clearInterval(usersRefreshInterval); usersRefreshInterval = null; }
+            stopHeartbeat();
 
             const overlay = document.getElementById('loginOverlay');
             overlay.style.display = 'flex';
@@ -2320,7 +2657,7 @@
         function getPriorityBadge(priority) {
             if (priority === 'high') return '<span class="badge badge-high">HIGH</span>';
             if (priority === 'medium') return '<span class="badge badge-medium">MEDIUM</span>';
-            return '<span class="badge badge-closed">LOW</span>';
+            return '<span class="badge badge-low">LOW</span>';
         }
 
         function getPrioritySort(priority) {
@@ -2336,6 +2673,8 @@
         }
 
         let sortDirections = {};
+        // Store original header labels separately so innerText mutation never widens columns
+        const _thLabels = new WeakMap();
         function sortTable(th) {
             const tr = th.parentElement;
             const tbody = tr.parentElement.parentElement.querySelector('tbody');
@@ -2352,8 +2691,14 @@
             const asc = !sortDirections[key];
             sortDirections[key] = asc;
 
-            tr.querySelectorAll('th').forEach(h => h.innerText = h.innerText.replace(/ [▲▼]$/, ''));
-            th.innerText += asc ? ' ▲' : ' ▼';
+            // Cache original label text on first sort; reset all arrows via dataset
+            tr.querySelectorAll('th').forEach(h => {
+                if (!_thLabels.has(h)) _thLabels.set(h, h.innerText.trim());
+                h.dataset.sortArrow = '';
+                h.innerText = _thLabels.get(h);
+            });
+            th.dataset.sortArrow = asc ? ' ▲' : ' ▼';
+            th.innerText = _thLabels.get(th) + (asc ? ' ▲' : ' ▼');
 
             rows.sort((a, b) => {
                 const cellA = a.cells[colIndex];
@@ -2388,17 +2733,41 @@
             localStorage.setItem('nexus_tab', tabId);
 
             if (statusUptimeInterval) { clearInterval(statusUptimeInterval); statusUptimeInterval = null; }
+            if (usersRefreshInterval) { clearInterval(usersRefreshInterval); usersRefreshInterval = null; }
 
             if (tabId === 'status') {
                 loadSystemStatus();
                 statusUptimeInterval = setInterval(tickUptime, 1000);
             } else if (tabId === 'users') {
                 loadUsers();
+                // Auto-refresh every 30 s so online status stays current
+                usersRefreshInterval = setInterval(() => { if (authToken) loadUsers(); }, 30_000);
             } else if (tabId === 'settings') {
                 loadSettingsUI();
             } else if (tabId === 'incident' || tabId === 'service') {
                 loadTickets();
             }
+        }
+
+        function startHeartbeat() {
+            if (heartbeatInterval) return;
+            // Ping immediately on login so last_seen_at is set right away
+            sendHeartbeat();
+            heartbeatInterval = setInterval(sendHeartbeat, 60_000);
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
+        }
+
+        async function sendHeartbeat() {
+            if (!authToken) return;
+            try {
+                await fetch('/api/auth/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + authToken, 'Accept': 'application/json' }
+                });
+            } catch (_) { /* silent – network hiccup is acceptable */ }
         }
 
         function updateServerLed(isOnline, text = null) {
@@ -2529,15 +2898,15 @@
                 const requests = allTickets.filter(t => !t.category || !INCIDENT_CATEGORIES.includes(t.category.name));
 
                 if (tbody) {
-                    if (incidents.length === 0) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found.</td></tr>';
+                    if (incidents.length === 0) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found.</td></tr>';
                     else {
                         tbody.innerHTML = '';
-                        incidents.forEach(ticket => tbody.appendChild(createTicketRow(ticket, 'INC')));
+                        incidents.forEach(ticket => tbody.appendChild(createTicketRow(ticket, 'TIC')));
                     }
                 }
 
                 if (rtbody) {
-                    if (requests.length === 0) rtbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active requests found.</td></tr>';
+                    if (requests.length === 0) rtbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No active requests found.</td></tr>';
                     else {
                         rtbody.innerHTML = '';
                         requests.forEach(ticket => rtbody.appendChild(createTicketRow(ticket, 'REQ')));
@@ -2554,17 +2923,24 @@
         function createTicketRow(ticket, prefix) {
             const tr = document.createElement('tr');
             tr.style.cursor = 'pointer';
-            tr.onclick = () => openDetails(ticket.id, prefix);
+            tr.onclick = (e) => {
+                const selection = window.getSelection();
+                if (selection && selection.toString().trim() !== '') return;
+                openDetails(ticket.id, prefix);
+            };
             const dateStr = ticket.created_at
                 ? new Date(ticket.created_at).toLocaleDateString('hu-HU', { year: 'numeric', month: '2-digit', day: '2-digit' })
                 : '-';
+            const title = escapeHtml(ticket.title || '-');
+            const categoryName = escapeHtml(ticket.category ? ticket.category.name : '-');
+            const requesterName = escapeHtml(ticket.user ? ticket.user.name : '-');
             tr.innerHTML = `
                 <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);" data-sort="${ticket.id}">#${prefix}-${ticket.id.toString().padStart(4, '0')}</td>
-                <td style="font-weight: 500;" data-sort="${ticket.title}">${ticket.title}</td>
-                <td style="color: var(--text-muted);" data-sort="${ticket.category ? ticket.category.name : ''}">${ticket.category ? ticket.category.name : '-'}</td>
+                <td style="font-weight: 500;" data-sort="${title}">${title}</td>
+                <td style="color: var(--text-muted);" data-sort="${categoryName}">${categoryName}</td>
                 <td data-sort="${getPrioritySort(ticket.priority)}">${getPriorityBadge(ticket.priority)}</td>
                 <td data-sort="${getStatusSort(ticket.status)}">${getStatusBadge(ticket.status)}</td>
-                <td style="color: var(--text-muted);" data-sort="${ticket.user ? ticket.user.name : ''}">${ticket.user ? ticket.user.name : '-'}</td>
+                <td style="color: var(--text-muted);" data-sort="${requesterName}">${requesterName}</td>
                 <td style="color: var(--text-muted); white-space: nowrap;" data-sort="${ticket.created_at}">${dateStr}</td>
             `;
             return tr;
@@ -2578,6 +2954,13 @@
             cat.innerHTML = isReq
                 ? '<option value="2">Software / License</option><option value="4">Access / Accounts</option>'
                 : '<option value="1">Hardware Issue</option><option value="3">Network / Connectivity</option><option value="4">Other</option>';
+            syncCustomSelect(cat);
+
+            document.getElementById('ticketModalTitle').innerText = isReq ? 'Create New Request' : 'Create New Ticket';
+            document.getElementById('ticketModalSubtitle').innerText = isReq
+                ? 'Submit a service request for software, access, or equipment.'
+                : 'Please provide details about the incident.';
+            document.getElementById('ticketSubmitBtn').innerText = isReq ? 'Submit Request' : 'Submit Ticket';
 
             const overlay = document.getElementById('ticketOverlay');
             overlay.style.display = 'flex';
@@ -2637,6 +3020,8 @@
                 document.getElementById('saveBtn').style.display = 'block';
                 document.getElementById('updateStatus').value = ticket.status;
                 document.getElementById('updatePriority').value = ticket.priority || 'medium';
+                syncCustomSelect('updateStatus');
+                syncCustomSelect('updatePriority');
             } else {
                 document.getElementById('itActions').style.display = 'none';
                 document.getElementById('saveBtn').style.display = 'none';
@@ -2776,17 +3161,20 @@
                 } else {
                     pendingTbody.innerHTML = '';
                     pending.forEach(u => {
+                        const userName = escapeHtml(u.name || '-');
+                        const userEmail = escapeHtml(u.email || '-');
+                        const registeredAt = u.created_at ? new Date(u.created_at).toLocaleDateString('hu-HU') : '-';
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td style="font-weight:500;" data-sort="${u.name}">${u.name}</td>
-                            <td style="color:var(--text-muted);" data-sort="${u.email}">${u.email}</td>
-                            <td style="color:var(--text-muted);" data-sort="${u.created_at}">${new Date(u.created_at).toLocaleDateString('hu-HU')}</td>
+                            <td style="font-weight:500;" data-sort="${userName}">${userName}</td>
+                            <td style="color:var(--text-muted);" data-sort="${userEmail}">${userEmail}</td>
+                            <td style="color:var(--text-muted);" data-sort="${u.created_at || ''}">${registeredAt}</td>
                             <td></td>
-                            <td style="display:flex; gap:8px; align-items:center;">
-                                <button class="btn btn-approve" data-id="${u.id}" style="background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.3);">
+                            <td style="white-space:nowrap;">
+                                <button class="btn btn-secondary btn-approve" data-id="${u.id}" style="color:var(--success); border-color:rgba(16,185,129,0.4);">
                                     ✓ Approve
                                 </button>
-                                <button class="btn btn-reject" data-id="${u.id}" data-name="${u.name.replace(/"/g, '&quot;')}" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3);">
+                                <button class="btn btn-secondary btn-reject" data-id="${u.id}" data-name="${userName}" style="color:var(--danger); border-color:rgba(239,68,68,0.4); margin-left:6px;">
                                     ✕ Reject
                                 </button>
                             </td>`;
@@ -2803,54 +3191,85 @@
                     usersTbody.innerHTML = '';
                     approved.forEach(u => {
                         const roleColors = {
-                            'Employee': { bg: 'rgba(16,185,129,0.15)', clr: '#10b981' },
-                            'IT Support': { bg: 'rgba(245,158,11,0.15)', clr: '#f59e0b' },
-                            'Admin': { bg: 'rgba(239,68,68,0.15)', clr: '#ef4444' },
+                            'Employee': { bg: 'rgba(156,163,175,0.15)', clr: '#9ca3af' },
+                            'IT Support': { bg: 'rgba(6,182,212,0.15)', clr: '#06b6d4' },
+                            'Admin': { bg: 'rgba(99,102,241,0.15)', clr: '#6366f1' },
                         };
                         const roleName = u.role ? u.role.name : 'Employee';
                         const rc = roleColors[roleName] || { bg: 'rgba(100,100,100,0.15)', clr: 'white' };
-                        const statusBg = u.is_suspended ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)';
-                        const statusClr = u.is_suspended ? '#f59e0b' : '#10b981';
+                        const currentUserId = parseInt(sessionStorage.getItem('nexus_user_id')) || 0;
+                        const isSelf = (u.id === currentUserId);
 
+                        const uName = escapeHtml(u.name || '-');
+                        const uEmail = escapeHtml(u.email || '-');
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td style="font-weight:500;" data-sort="${u.name}">${u.name}</td>
-                            <td style="color:var(--text-muted);" data-sort="${u.email}">${u.email}</td>
+                            <td style="font-weight:500;" data-sort="${uName}">${uName}</td>
+                            <td style="color:var(--text-muted);" data-sort="${uEmail}">${uEmail}</td>
                             <td data-sort="${u.role_id}">
-                                <select class="inline-select" style="color:${rc.clr};">
-                                    <option value="1" ${u.role_id === 1 ? 'selected' : ''}>Employee</option>
-                                    <option value="2" ${u.role_id === 2 ? 'selected' : ''}>IT Support</option>
-                                    <option value="3" ${u.role_id === 3 ? 'selected' : ''}>Admin</option>
-                                </select>
+                                <div class="inline-select-container">
+                                    <div class="inline-select-trigger" style="color:${rc.clr};" data-value="${u.role_id}">
+                                        ${roleName}
+                                    </div>
+                                    <div class="inline-select-dropdown">
+                                        <div class="inline-select-option" data-value="1" style="color:#9ca3af;">Employee</div>
+                                        <div class="inline-select-option" data-value="2" style="color:#06b6d4;">IT Support</div>
+                                        <div class="inline-select-option" data-value="3" style="color:#6366f1;">Admin</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td data-sort="1">
-                                <span style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-weight:500;">
-                                    <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.5);"></span>
-                                    Online
-                                </span>
+                            <td data-sort="${u.is_online ? 2 : 1}">
+                                ${u.is_online
+                                ? `<span style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-weight:500;"><span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px rgba(16,185,129,0.5); animation: pulse-online 2s infinite;"></span>Online</span>`
+                                : `<span style="display:inline-flex; align-items:center; gap:6px; color:#9ca3af; font-weight:500;"><span style="width:8px; height:8px; border-radius:50%; background:#9ca3af;"></span>Offline</span>`
+                            }
                             </td>
                             <td style="white-space: nowrap;">
-                                <button class="btn btn-logout-user" style="background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.3);">
+                                <button class="btn btn-secondary btn-logout-user" style="color:var(--text-muted); border-color:rgba(156,163,175,0.4);">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                                     Logout
                                 </button>
-                                <button class="btn btn-suspend-user" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3); margin-left:6px;">
+                                <button class="btn btn-secondary btn-suspend-user" style="color:var(--warning); border-color:rgba(245,158,11,0.4); margin-left:6px;">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                                     Suspend
                                 </button>
-                                <button class="btn btn-del-user" style="background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3); margin-left:6px;">
+                                <button class="btn btn-secondary btn-del-user" style="color:var(--danger); border-color:rgba(239,68,68,0.4); margin-left:6px;">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
                                     Delete
                                 </button>
                             </td>`;
+                        const container = tr.querySelector('.inline-select-container');
+                        const trigger = container.querySelector('.inline-select-trigger');
+                        const dropdown = container.querySelector('.inline-select-dropdown');
 
-                        const selRole = tr.querySelector('.inline-select');
-                        selRole.addEventListener('change', async () => {
-                            const newRoleId = parseInt(selRole.value);
-                            await updateUser(u.id, { role_id: newRoleId });
-                            const rnames = { 1: 'Employee', 2: 'IT Support', 3: 'Admin' };
-                            const rclrs = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
-                            selRole.style.color = rclrs[newRoleId];
+                        trigger.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            document.querySelectorAll('.inline-select-dropdown.open').forEach(d => {
+                                if (d !== dropdown) {
+                                    d.classList.remove('open');
+                                    const row = d.closest('tr');
+                                    if (row) row.classList.remove('has-open-dropdown');
+                                }
+                            });
+                            const isOpen = dropdown.classList.toggle('open');
+                            tr.classList.toggle('has-open-dropdown', isOpen);
+                        });
+
+                        container.querySelectorAll('.inline-select-option').forEach(opt => {
+                            opt.addEventListener('click', async (e) => {
+                                e.stopPropagation();
+                                const newRoleId = parseInt(opt.dataset.value);
+                                const newRoleName = opt.innerText.trim();
+                                const rclrs = { 1: '#9ca3af', 2: '#06b6d4', 3: '#6366f1' };
+
+                                await updateUser(u.id, { role_id: newRoleId });
+
+                                trigger.innerText = newRoleName;
+                                trigger.style.color = rclrs[newRoleId];
+                                trigger.dataset.value = newRoleId;
+                                dropdown.classList.remove('open');
+                                tr.classList.remove('has-open-dropdown');
+                            });
                         });
 
                         tr.querySelector('.btn-logout-user').addEventListener('click', (e) => armButton(e.currentTarget, () => forceLogoutUser(u.id)));
@@ -2875,7 +3294,7 @@
                 const orig = btn.innerText;
                 const origStyle = btn.getAttribute('style');
                 btn.innerText = 'Confirm?';
-                btn.style.background = 'rgba(239,68,68,0.3)';
+                btn.style.background = btn.style.borderColor || 'rgba(239,68,68,0.3)';
                 btn.style.fontWeight = '700';
                 setTimeout(() => {
                     btn.dataset.armed = 'false';
@@ -2949,7 +3368,6 @@
         }
 
         async function logoutAllUsers() {
-            if (!confirm('This will log out all active non-admin users. Continue?')) return;
             try {
                 const res = await fetch('/api/users/logout-all', {
                     method: 'POST',
@@ -2974,7 +3392,6 @@
         }
 
         async function suspendAllUsers() {
-            if (!confirm('This will suspend all non-admin users and move them to pending approvals. Continue?')) return;
             try {
                 console.log('suspendAllUsers started');
                 const res = await fetch('/api/users/suspend-all', {
@@ -3026,6 +3443,7 @@
             document.getElementById('newUserEmail').value = '';
             document.getElementById('newUserPassword').value = '';
             document.getElementById('newUserRole').value = '1';
+            syncCustomSelect('newUserRole');
             document.getElementById('newUserError').style.display = 'none';
             const overlay = document.getElementById('newUserOverlay');
             overlay.style.display = 'flex';
@@ -3096,7 +3514,7 @@
             </div>
             <div class="input-group">
                 <label>Password</label>
-                <input type="password" id="newUserPassword" placeholder="Minimum 6 characters">
+                <input type="password" id="newUserPassword" placeholder="Minimum 8 characters">
             </div>
             <div class="input-group">
                 <label>Role</label>
@@ -3137,7 +3555,7 @@
             </div>
             <div class="input-group">
                 <label>New Password</label>
-                <input type="password" id="pwNew" placeholder="At least 6 characters">
+                <input type="password" id="pwNew" placeholder="At least 8 characters">
             </div>
             <div class="input-group">
                 <label>Confirm New Password</label>

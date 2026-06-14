@@ -26,11 +26,11 @@ class SystemStatusController extends Controller
 
         return response()->json([
             'data' => [
-                'php_version'     => PHP_VERSION,
+                'php_version' => PHP_VERSION,
                 'laravel_version' => app()->version(),
-                'database'        => $databaseStatus,
+                'database' => $databaseStatus,
                 'memory_usage_mb' => round(memory_get_usage() / 1024 / 1024, 2),
-                'uptime'          => $startTime->diffForHumans(null, true),
+                'uptime' => $startTime->diffForHumans(null, true),
                 'start_timestamp' => $startTimeTimestamp,
             ],
         ]);

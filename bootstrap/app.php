@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckForceLogout;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\UpdateLastSeen;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -24,7 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureRole::class,
         ]);
         $middleware->api(append: [
-            \App\Http\Middleware\CheckForceLogout::class,
+            CheckForceLogout::class,
+            UpdateLastSeen::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

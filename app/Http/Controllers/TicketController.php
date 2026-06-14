@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -36,18 +37,22 @@ class TicketController extends Controller
         $validated = $request->validated();
         $tagIds = $validated['tags'] ?? [];
 
-        $ticket = Ticket::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'priority' => $validated['priority'] ?? Ticket::PRIORITY_MEDIUM,
-            'status' => Ticket::STATUS_OPEN,
-            'user_id' => auth('api')->user()->id,
-            'category_id' => $validated['category_id'],
-        ]);
+        $ticket = DB::transaction(function () use ($validated, $tagIds): Ticket {
+            $ticket = Ticket::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'priority' => $validated['priority'] ?? Ticket::PRIORITY_MEDIUM,
+                'status' => Ticket::STATUS_OPEN,
+                'user_id' => auth('api')->user()->id,
+                'category_id' => $validated['category_id'],
+            ]);
 
-        if ($tagIds !== []) {
-            $ticket->tags()->sync($tagIds);
-        }
+            if ($tagIds !== []) {
+                $ticket->tags()->sync($tagIds);
+            }
+
+            return $ticket;
+        });
 
         return response()->json([
             'message' => 'Ticket created successfully.',
@@ -82,17 +87,21 @@ class TicketController extends Controller
             $this->validateAssignee($validated);
         }
 
-        if ($validated !== []) {
-            $ticket->update($validated);
-        }
+        $ticket = DB::transaction(function () use ($request, $ticket, $user, $validated, $tagIds): Ticket {
+            if ($validated !== []) {
+                $ticket->update($validated);
+            }
 
-        if ($user->isSupportStaff() && $request->exists('tags')) {
-            $ticket->tags()->sync($tagIds ?? []);
-        }
+            if ($user->isSupportStaff() && $request->exists('tags')) {
+                $ticket->tags()->sync($tagIds ?? []);
+            }
+
+            return $ticket->refresh();
+        });
 
         return response()->json([
             'message' => 'Ticket updated successfully.',
-            'data' => $ticket->refresh()->load(['category', 'tags', 'user', 'assignee']),
+            'data' => $ticket->load(['category', 'tags', 'user', 'assignee']),
         ]);
     }
 
@@ -104,9 +113,7 @@ class TicketController extends Controller
         $ticket->delete();
 
         // Remove the actual files from storage to prevent leaking orphaned files
-        foreach ($filePaths as $path) {
-            Storage::delete($path);
-        }
+        Storage::delete($filePaths);
 
         return response()->json(null, 204);
     }

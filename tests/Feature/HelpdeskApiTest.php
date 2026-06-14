@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Role;
 use App\Models\Tag;
 use App\Models\Ticket;
 use App\Models\User;
@@ -27,8 +26,8 @@ class HelpdeskApiTest extends TestCase
     {
         // Registration now returns 201 with a pending message (no token, no data)
         $this->postJson('/api/auth/register', [
-            'name'     => 'New Employee',
-            'email'    => 'new.employee@example.com',
+            'name' => 'New Employee',
+            'email' => 'new.employee@example.com',
             'password' => 'secret123',
         ])
             ->assertCreated()
@@ -41,7 +40,7 @@ class HelpdeskApiTest extends TestCase
 
         // Login must be blocked until admin approves
         $this->postJson('/api/auth/login', [
-            'email'    => 'new.employee@example.com',
+            'email' => 'new.employee@example.com',
             'password' => 'secret123',
         ])->assertForbidden();
 
@@ -50,7 +49,7 @@ class HelpdeskApiTest extends TestCase
 
         // Now login should succeed
         $loginResponse = $this->postJson('/api/auth/login', [
-            'email'    => 'new.employee@example.com',
+            'email' => 'new.employee@example.com',
             'password' => 'secret123',
         ])
             ->assertOk()

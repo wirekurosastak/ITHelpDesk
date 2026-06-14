@@ -16,7 +16,7 @@ class User extends Authenticatable implements JWTSubject
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role_id', 'is_approved', 'is_suspended'];
+    protected $fillable = ['name', 'email', 'password', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -33,7 +33,21 @@ class User extends Authenticatable implements JWTSubject
             'role_id'           => 'integer',
             'is_approved'       => 'boolean',
             'is_suspended'      => 'boolean',
+            'last_seen_at'      => 'datetime',
         ];
+    }
+
+    /** User is considered online if seen within the last 5 minutes. */
+    public function isOnline(): bool
+    {
+        return $this->last_seen_at !== null
+            && $this->last_seen_at->greaterThan(now()->subMinutes(5));
+    }
+
+    /** Eloquent accessor – allows ->append('is_online') in collections. */
+    public function getIsOnlineAttribute(): bool
+    {
+        return $this->isOnline();
     }
 
     public function getJWTIdentifier(): mixed
@@ -62,6 +76,11 @@ class User extends Authenticatable implements JWTSubject
     public function isAdmin(): bool
     {
         return $this->role_id === Role::ADMIN_ID;
+    }
+
+    public function forceLogoutCacheKey(): string
+    {
+        return "force_logout:{$this->getKey()}";
     }
 
     /**

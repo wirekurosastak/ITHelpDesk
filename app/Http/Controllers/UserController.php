@@ -2,170 +2,145 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Models\Role;
 use App\Models\User;
+use App\Services\UserAdministrationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
-    /**
-     * List all users (approved + pending), ordered: pending first.
-     * Admin only.
-     */
+    public function __construct(private readonly UserAdministrationService $userAdministration) {}
+
     public function index(): JsonResponse
     {
         $users = User::with('role')
-            ->orderBy('is_approved')   // pending (0) first
+            ->orderBy('is_approved')
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'name', 'email', 'role_id', 'is_approved', 'is_suspended', 'created_at']);
+            ->get(['id', 'name', 'email', 'role_id', 'is_approved', 'is_suspended', 'last_seen_at', 'created_at'])
+            ->each(fn (User $u) => $u->append('is_online'));
 
         return response()->json(['data' => $users]);
     }
 
-    /**
-     * Admin creates a new pre-approved user account.
-     */
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name'     => 'required|string|min:2|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role_id'  => 'sometimes|integer|in:1,2,3',
-        ]);
-
-        $user = User::create([
-            'name'        => $validated['name'],
-            'email'       => $validated['email'],
-            'password'    => Hash::make($validated['password']),
-            'role_id'     => $validated['role_id'] ?? 1,
-            'is_approved' => true,
-            'is_suspended'=> false,
-        ]);
+        $user = $this->userAdministration->createApprovedUser($request->validated());
 
         return response()->json([
             'message' => "User \"{$user->name}\" created successfully.",
-            'data'    => $user->load('role'),
+            'data' => $user->load('role'),
         ], 201);
     }
 
-    /**
-     * Force-logout a user in real-time.
-     */
+    public function show(User $user): JsonResponse
+    {
+        return response()->json(['data' => $user->load('role')]);
+    }
+
     public function forceLogout(User $user): JsonResponse
     {
-        $admin = auth('api')->user();
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'Cannot force-logout yourself.'], 422);
+        if ($error = $this->targetManagementError($user, 'force-logout')) {
+            return $error;
         }
-        if ($user->role_id === 3) {
-            return response()->json(['message' => 'Cannot force-logout another admin.'], 422);
-        }
-        Cache::put('force_logout_' . $user->id, true, 86400); // Set flag for 24 hours
+
+        $this->userAdministration->forceLogout($user);
+
         return response()->json(['message' => "User \"{$user->name}\" has been logged out."]);
     }
 
-    /**
-     * Logout all non-admin users in real-time.
-     */
     public function logoutAll(): JsonResponse
     {
-        $users = User::where('role_id', '!=', 3)->get();
-        foreach ($users as $u) {
-            Cache::put('force_logout_' . $u->id, true, 86400);
-        }
-        return response()->json(['message' => "{$users->count()} user(s) have been logged out."]);
+        $count = $this->userAdministration->forceLogoutAllNonAdmins();
+
+        return response()->json(['message' => "{$count} user(s) have been logged out."]);
     }
 
-    /**
-     * Suspend a user by moving them to pending approvals.
-     */
     public function suspend(User $user): JsonResponse
     {
-        $admin = auth('api')->user();
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'Cannot suspend yourself.'], 422);
+        if ($error = $this->targetManagementError($user, 'suspend')) {
+            return $error;
         }
-        if ($user->role_id === 3) {
-            return response()->json(['message' => 'Cannot suspend another admin.'], 422);
-        }
-        $user->update(['is_approved' => false]);
-        Cache::put('force_logout_' . $user->id, true, 86400); // Also log them out
+
+        $user = $this->userAdministration->suspend($user);
+
         return response()->json(['message' => "User \"{$user->name}\" has been suspended."]);
     }
 
-    /**
-     * Suspend all non-admin users.
-     */
     public function suspendAll(): JsonResponse
     {
-        $count = User::where('role_id', '!=', 3)->update(['is_approved' => false]);
-        $users = User::where('role_id', '!=', 3)->get();
-        foreach ($users as $u) {
-            Cache::put('force_logout_' . $u->id, true, 86400);
-        }
+        $count = $this->userAdministration->suspendAllNonAdmins();
+
         return response()->json(['message' => "{$count} user(s) have been suspended."]);
     }
 
-    /**
-     * Approve a pending user account.
-     * Admin only.
-     */
     public function approve(User $user): JsonResponse
     {
+        if ($error = $this->targetManagementError($user, 'approve')) {
+            return $error;
+        }
+
         if ($user->is_approved) {
             return response()->json(['message' => 'User is already approved.'], 422);
         }
 
-        $user->update(['is_approved' => true]);
+        $user = $this->userAdministration->approve($user);
 
         return response()->json([
             'message' => "User \"{$user->name}\" has been approved.",
-            'data'    => $user->load('role'),
+            'data' => $user->load('role'),
         ]);
     }
 
-    /**
-     * Update a user's role or suspension status.
-     * Admin only – cannot modify own account.
-     */
-    public function update(Request $request, User $user): JsonResponse
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $admin = auth('api')->user();
-
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'You cannot modify your own account here.'], 422);
+        if ($error = $this->targetManagementError($user, 'modify')) {
+            return $error;
         }
 
-        $validated = $request->validate([
-            'role_id'      => 'sometimes|integer|in:1,2,3',
-            'is_suspended' => 'sometimes|boolean',
-        ]);
+        $validated = $request->validated();
+        $user = $this->userAdministration->update($user, $validated);
 
-        $user->update($validated);
+        if (($validated['is_suspended'] ?? false) === true) {
+            $this->userAdministration->forceLogout($user);
+        }
 
         return response()->json([
             'message' => "User \"{$user->name}\" updated.",
-            'data'    => $user->refresh()->load('role'),
+            'data' => $user->load('role'),
         ]);
     }
 
-    /**
-     * Delete a user account.
-     * Admin only – cannot delete own account.
-     */
     public function destroy(User $user): JsonResponse
     {
-        $admin = auth('api')->user();
+        if ($error = $this->targetManagementError($user, 'delete')) {
+            return $error;
+        }
 
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'You cannot delete your own account.'], 422);
+        if ($user->createdTickets()->exists() || $user->assignedTickets()->exists()) {
+            return response()->json([
+                'message' => 'Users with ticket history cannot be deleted. Suspend the account instead.',
+            ], 422);
         }
 
         $user->delete();
 
         return response()->json(null, 204);
+    }
+
+    private function targetManagementError(User $target, string $action): ?JsonResponse
+    {
+        $admin = auth('api')->user();
+
+        if ($admin->is($target)) {
+            return response()->json(['message' => "You cannot {$action} your own account."], 422);
+        }
+
+        if ($target->role_id === Role::ADMIN_ID) {
+            return response()->json(['message' => "Cannot {$action} another admin."], 422);
+        }
+
+        return null;
     }
 }
