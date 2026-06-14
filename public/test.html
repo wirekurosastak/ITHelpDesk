@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hibabejelentő API Teszt</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; color: #333; }
+        h1 { color: #2c3e50; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px; }
+        button:hover { background: #2980b9; }
+        pre { background: #2d3436; color: #00b894; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 14px; }
+        .token-box { margin-bottom: 20px; font-weight: bold; color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Beadandó API Tesztelő (Nincs szükség Postmanre!)</h1>
+    <p>Nyugi, a kód tökéletes! Ezen az oldalon egy gombnyomással ki tudod próbálni, amit csináltunk.</p>
+
+    <div class="box">
+        <h3>1. Lépés: Bejelentkezés</h3>
+        <p>A rendszer nem enged be akárkit, először be kell jelentkeznünk az "IT Support" fiókjával.</p>
+        <button onclick="login()">Bejelentkezés mint IT Support</button>
+        <div class="token-box" id="token-display">Jelenleg nem vagy bejelentkezve.</div>
+    </div>
+
+    <div class="box">
+        <h3>2. Lépés: Hibajegyek lekérése</h3>
+        <p>Ha már be vagyunk jelentkezve, le tudjuk kérdezni a rendszerben lévő hibajegyeket!</p>
+        <button onclick="getTickets()">Hibajegyek betöltése</button>
+        <pre id="output">// Ide fog kerülni az eredmény...</pre>
+    </div>
+
+    <script>
+        let myToken = "";
+
+        async function login() {
+            document.getElementById('output').innerText = "Töltés...";
+            try {
+                // Kérés küldése a bejelentkezés végpontra
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: "it@ceg.hu", password: "password" })
+                });
+
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    myToken = data.access_token;
+                    document.getElementById('token-display').innerText = "✅ Sikeres bejelentkezés! A tokened a háttérben meg lett jegyezve.";
+                    document.getElementById('token-display').style.color = "#27ae60";
+                    document.getElementById('output').innerText = "Sikeres bejelentkezés! Most kattints a 'Hibajegyek betöltése' gombra.";
+                } else {
+                    document.getElementById('output').innerText = "Hiba történt a bejelentkezéskor: " + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                document.getElementById('output').innerText = "Hiba a kapcsolódáskor. Biztos megy a Laragon?\nRészletek: " + error;
+            }
+        }
+
+        async function getTickets() {
+            if (!myToken) {
+                alert("Előbb jelentkezz be (1. Lépés)!");
+                return;
+            }
+
+            document.getElementById('output').innerText = "Töltés...";
+            try {
+                // Kérés küldése a jegyek lekérdezésére, elküldjük a tokent is!
+                const response = await fetch('/api/tickets', {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + myToken
+                    }
+                });
+
+                const data = await response.json();
+                
+                // Formázott JSON kiírása
+                document.getElementById('output').innerText = JSON.stringify(data, null, 4);
+            } catch (error) {
+                document.getElementById('output').innerText = "Hiba történt: " + error;
+            }
+        }
+    </script>
+</body>
+</html>

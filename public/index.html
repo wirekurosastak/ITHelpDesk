@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Enterprise Service Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --surface: #111111;
+            --surface-hover: #1a1a1a;
+            --border: #222222;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --glow: rgba(99, 102, 241, 0.5);
+            
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.05), transparent 25%);
+        }
+
+        /* Glassmorphism utils */
+        .glass {
+            background: rgba(17, 17, 17, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+        }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 280px; 
+            background-color: transparent; 
+            border-right: 1px solid var(--border);
+            display: flex; 
+            flex-direction: column; 
+            z-index: 10;
+        }
+        .sidebar-header { 
+            padding: 30px 24px; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            background: linear-gradient(90deg, #fff, #a5a5a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .sidebar-header svg { 
+            width: 28px; 
+            height: 28px; 
+            color: var(--accent);
+            -webkit-text-fill-color: initial;
+            filter: drop-shadow(0 0 8px var(--glow));
+        }
+        
+        .nav-items { padding: 10px 16px; flex: 1; }
+        .nav-item { 
+            padding: 12px 16px; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .nav-item:hover { 
+            background-color: var(--surface-hover); 
+            color: var(--text-main); 
+        }
+        .nav-item.active { 
+            background-color: rgba(99, 102, 241, 0.1); 
+            color: var(--accent); 
+            border-left: 3px solid var(--accent);
+        }
+        
+        /* Main Content */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        .topbar { 
+            height: 72px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 32px; 
+            background: rgba(5,5,5,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+        .user-profile { display: flex; align-items: center; gap: 12px; font-weight: 500; }
+        .avatar { 
+            width: 36px; height: 36px; 
+            background: linear-gradient(135deg, var(--accent), #ec4899); 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 600; 
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.3);
+        }
+        
+        .content { padding: 40px; overflow-y: auto; flex: 1; scroll-behavior: smooth; }
+        .content::-webkit-scrollbar { width: 8px; }
+        .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .page-header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; }
+        
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            border: none; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 8px; 
+            font-size: 0.95rem;
+        }
+        .btn-primary { 
+            background: var(--accent); 
+            color: white; 
+            box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
+        }
+        .btn-primary:hover { 
+            background: var(--accent-hover); 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--surface-hover); }
+        
+        /* Cards & Tables */
+        .card { 
+            background: var(--surface); 
+            border-radius: 12px; 
+            border: 1px solid var(--border); 
+            overflow: hidden; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 18px 24px; border-bottom: 1px solid var(--border); }
+        th { 
+            background: rgba(255,255,255,0.02); 
+            color: var(--text-muted); 
+            font-weight: 500; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+        }
+        tr { transition: background 0.2s; }
+        tbody tr:hover { background: rgba(255,255,255,0.03); transform: scale(1.001); }
+        tr:last-child td { border-bottom: none; }
+        
+        /* Badges */
+        .badge { 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-open { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-progress { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .badge-closed { background: rgba(156, 163, 175, 0.1); color: var(--text-muted); border: 1px solid rgba(156, 163, 175, 0.2); }
+        .badge-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .badge-medium { background: rgba(99, 102, 241, 0.1); color: var(--accent); border: 1px solid rgba(99, 102, 241, 0.2); }
+        
+        /* Overlays / Modals */
+        .overlay { 
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 1000; 
+            transition: opacity 0.3s ease; 
+        }
+        .modal { 
+            background: var(--surface); 
+            padding: 40px; 
+            border-radius: 16px; 
+            width: 100%; 
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.4s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h2 { margin-bottom: 8px; font-weight: 600; font-size: 1.5rem; }
+        .modal p.subtitle { color: var(--text-muted); margin-bottom: 32px; }
+        
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); }
+        .input-group input, .input-group textarea, .input-group select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            color: white;
+            outline: none; 
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); 
+            background: rgba(0,0,0,0.4);
+        }
+        .btn-full { width: 100%; padding: 14px; font-size: 1rem; margin-top: 10px; }
+        
+        /* Demo Hints */
+        .demo-hint {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border: 1px dashed var(--border);
+        }
+        .demo-hint code { background: rgba(0,0,0,0.5); padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+
+        /* Detail Modal specific */
+        .detail-card {
+            background: rgba(0,0,0,0.3);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Authentication Overlay -->
+    <div class="overlay" id="loginOverlay">
+        <div class="modal" style="max-width: 420px;">
+            <div style="display: flex; justify-content: center; margin-bottom: 24px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 48px; height: 48px; filter: drop-shadow(0 0 10px var(--glow));"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            </div>
+            <h2 style="text-align: center;">Welcome to Nexus</h2>
+            <p class="subtitle" style="text-align: center;">Sign in to the Enterprise Service Desk</p>
+            
+            <div class="input-group">
+                <label>Corporate Email</label>
+                <input type="email" id="email" placeholder="name@company.com" value="">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" value="">
+            </div>
+            <button class="btn btn-primary btn-full" onclick="authenticate()">Sign In</button>
+            <div id="loginError" style="color: var(--danger); font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;">Authentication failed.</div>
+            
+            <div class="demo-hint">
+                <strong>Demo Accounts:</strong><br>
+                Admin/IT: <code>it@company.com</code> | Employee: <code>employee@company.com</code><br>
+                Password for all: <code>password</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Sidebar -->
+    <div class="sidebar glass">
+        <div class="sidebar-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            Nexus
+        </div>
+        <div class="nav-items">
+            <div class="nav-item active" id="nav-incident" onclick="switchTab('incident')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                Incidents
+            </div>
+            <div class="nav-item" id="nav-service" onclick="switchTab('service')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                Requests
+            </div>
+            <div class="nav-item" id="nav-status" onclick="switchTab('status')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                System Status
+            </div>
+        </div>
+        <div style="padding: 24px; font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+            Nexus OS v2.1.0<br>Secure API Connection
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main">
+        <div class="topbar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success);"></div>
+                <span style="color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">Live</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <div class="user-profile">
+                    <div style="text-align: right;">
+                        <div id="userName" style="font-size: 0.9rem;">Agent Name</div>
+                        <div id="userRoleBadge" style="font-size: 0.7rem; color: var(--accent);">IT SUPPORT</div>
+                    </div>
+                    <div class="avatar" id="userAvatar">IT</div>
+                </div>
+                <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Incidents Tab -->
+        <div class="content" id="tab-incident">
+            <div class="page-header">
+                <h1 class="page-title">Active Incidents</h1>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="loadTickets()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewTicketModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        New Ticket
+                    </button>
+                </div>
+            </div>
+
+            <div class="card glass">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Subject</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Requester</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Service Requests Tab -->
+        <div class="content" id="tab-service" style="display: none;">
+            <div class="page-header"><h1 class="page-title">Service Requests</h1></div>
+            <div class="card glass" style="padding: 80px 40px; text-align: center; color: var(--text-muted);">
+                <svg style="width: 64px; height: 64px; margin-bottom: 24px; color: var(--border);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                <h3 style="color: var(--text-main); font-size: 1.5rem; margin-bottom: 8px;">Module in Development</h3>
+                <p>The Service Request catalog is currently being migrated to the new Nexus architecture.</p>
+            </div>
+        </div>
+
+        <!-- System Status Tab -->
+        <div class="content" id="tab-status" style="display: none;">
+            <div class="page-header"><h1 class="page-title">System Status</h1></div>
+            <div class="card glass" style="padding: 40px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+                    <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--success); box-shadow: 0 0 12px var(--success);"></div>
+                    <span style="font-weight: 600; font-size: 1.25rem;">Server Connected</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="color: var(--text-muted); margin-bottom: 8px;">Framework</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statLaravel">Loading...</div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;" id="statPhp"></div>
+                    </div>
+                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="color: var(--text-muted); margin-bottom: 8px;">Database</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--success);" id="statDb">Loading...</div>
+                    </div>
+                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="color: var(--text-muted); margin-bottom: 8px;">Memory Usage</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statMem">Loading...</div>
+                    </div>
+                    <div style="padding: 24px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px;">
+                        <div style="color: var(--text-muted); margin-bottom: 8px;">Server Time</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-main);" id="statTime">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="overlay" id="ticketOverlay" style="display: none; opacity: 0;">
+        <div class="modal" style="max-width: 500px;">
+            <h2>Create New Ticket</h2>
+            <p class="subtitle">Please provide details about the incident.</p>
+            <div class="input-group">
+                <label>Subject</label>
+                <input type="text" id="ticketTitle" placeholder="Brief summary of the issue">
+            </div>
+            <div class="input-group">
+                <label>Description</label>
+                <textarea id="ticketDesc" rows="4" placeholder="Detailed explanation..."></textarea>
+            </div>
+            <div class="input-group">
+                <label>Category</label>
+                <select id="ticketCategory">
+                    <option value="1">Hardware Issue</option>
+                    <option value="2">Software / License</option>
+                    <option value="3">Network / Connectivity</option>
+                    <option value="4">Other</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 32px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeNewTicketModal()">Cancel</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="submitTicket()">Submit Incident</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="detailsOverlay" style="display: none; opacity: 0;">
+        <div class="modal" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px;" id="detailId">#INC-0000</div>
+                    <h2 id="detailTitle" style="margin-bottom: 0;">Ticket Details</h2>
+                </div>
+                <span id="detailStatus"></span>
+            </div>
+            
+            <div class="detail-card">
+                <p id="detailDesc" style="font-size: 0.95rem; line-height: 1.6;"></p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; font-size: 0.875rem; padding: 0 8px;">
+                <div><span style="color: var(--text-muted);">Requester:</span> <strong style="color: white; margin-left: 8px;" id="detailUser"></strong></div>
+                <div><span style="color: var(--text-muted);">Category:</span> <strong style="color: white; margin-left: 8px;" id="detailCategory"></strong></div>
+            </div>
+
+            <div class="input-group" id="itActions" style="border-top: 1px solid var(--border); padding-top: 24px;">
+                <label style="color: var(--accent);">Admin Action: Update Status</label>
+                <select id="updateStatus">
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 32px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="closeDetailsModal()">Close</button>
+                <button class="btn btn-primary" style="flex: 1;" id="saveBtn" onclick="saveTicketDetails()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = "";
+        let currentUserRole = 1;
+        let allTickets = [];
+        let currentTicketId = null;
+
+        async function authenticate() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.querySelector('#loginOverlay .btn-primary');
+            
+            if(!email || !password) return;
+            
+            btn.innerText = "Authenticating...";
+            document.getElementById('loginError').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    authToken = data.access_token;
+                    currentUserRole = data.user.role_id;
+                    document.getElementById('userName').innerText = data.user.name;
+                    document.getElementById('userRoleBadge').innerText = currentUserRole > 1 ? 'ADMIN / IT' : 'EMPLOYEE';
+                    document.getElementById('userAvatar').innerText = data.user.name.substring(0, 2).toUpperCase();
+                    
+                    const overlay = document.getElementById('loginOverlay');
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.style.display = 'none', 300);
+                    
+                    loadTickets();
+                } else {
+                    document.getElementById('loginError').style.display = 'block';
+                    btn.innerText = "Sign In";
+                }
+            } catch (error) {
+                document.getElementById('loginError').innerText = "Connection error. Ensure the server is running.";
+                document.getElementById('loginError').style.display = 'block';
+                btn.innerText = "Sign In";
+            }
+        }
+
+        async function logout() {
+            if (!authToken) return;
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+            } catch (e) {}
+            
+            authToken = "";
+            document.getElementById('ticketTableBody').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
+            
+            // clear inputs
+            document.getElementById('email').value = "";
+            document.getElementById('password').value = "";
+
+            const overlay = document.getElementById('loginOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+            document.querySelector('#loginOverlay .btn-primary').innerText = "Sign In";
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'open') return '<span class="badge badge-open">OPEN</span>';
+            if (status === 'in_progress') return '<span class="badge badge-progress">IN PROGRESS</span>';
+            return '<span class="badge badge-closed">CLOSED</span>';
+        }
+
+        function getPriorityBadge(priority) {
+            if (priority === 'high') return '<span class="badge badge-high">HIGH</span>';
+            if (priority === 'medium') return '<span class="badge badge-medium">MEDIUM</span>';
+            return '<span class="badge badge-closed">LOW</span>';
+        }
+
+        function switchTab(tabId) {
+            document.getElementById('tab-incident').style.display = 'none';
+            document.getElementById('tab-service').style.display = 'none';
+            document.getElementById('tab-status').style.display = 'none';
+            document.getElementById('nav-incident').classList.remove('active');
+            document.getElementById('nav-service').classList.remove('active');
+            document.getElementById('nav-status').classList.remove('active');
+            
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            document.getElementById('nav-' + tabId).classList.add('active');
+            
+            if (tabId === 'status') {
+                loadSystemStatus();
+            }
+        }
+
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/api/status', {
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const data = await response.json();
+                document.getElementById('statLaravel').innerText = 'Laravel v' + data.laravel_version;
+                document.getElementById('statPhp').innerText = 'PHP v' + data.php_version;
+                document.getElementById('statDb').innerText = data.database;
+                document.getElementById('statMem').innerText = data.memory_usage;
+                document.getElementById('statTime').innerText = data.server_time;
+            } catch (e) {
+                document.getElementById('statLaravel').innerText = 'Error loading metrics';
+            }
+        }
+
+        async function loadTickets() {
+            const tbody = document.getElementById('ticketTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">Loading data from secure API...</td></tr>';
+
+            try {
+                const response = await fetch('/api/tickets', {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    }
+                });
+
+                allTickets = await response.json();
+                
+                if (allTickets.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No active incidents found in database.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                allTickets.forEach(ticket => {
+                    const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    tr.onclick = () => openDetails(ticket.id);
+                    tr.innerHTML = `
+                        <td style="font-weight: 500; font-family: monospace; color: var(--text-muted);">#INC-${ticket.id.toString().padStart(4, '0')}</td>
+                        <td style="font-weight: 500;">${ticket.title}</td>
+                        <td style="color: var(--text-muted);">${ticket.category ? ticket.category.name : '-'}</td>
+                        <td>${getPriorityBadge(ticket.priority)}</td>
+                        <td>${getStatusBadge(ticket.status)}</td>
+                        <td style="color: var(--text-muted);">${ticket.user ? ticket.user.name : '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--danger); padding: 40px;">API Connection Error.</td></tr>';
+            }
+        }
+
+        function showNewTicketModal() {
+            document.getElementById('ticketTitle').value = '';
+            document.getElementById('ticketDesc').value = '';
+            const overlay = document.getElementById('ticketOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+        }
+
+        function closeNewTicketModal() {
+            const overlay = document.getElementById('ticketOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
+
+        async function submitTicket() {
+            const title = document.getElementById('ticketTitle').value;
+            const description = document.getElementById('ticketDesc').value;
+            const category_id = document.getElementById('ticketCategory').value;
+
+            if (!title || !description) return;
+
+            try {
+                const response = await fetch('/api/tickets', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ title, description, category_id, priority: 'medium' })
+                });
+
+                if (response.ok) {
+                    closeNewTicketModal();
+                    loadTickets(); 
+                } else {
+                    alert("Validation Error");
+                }
+            } catch (error) {
+                alert("Connection error.");
+            }
+        }
+
+        function openDetails(id) {
+            const ticket = allTickets.find(t => t.id === id);
+            if (!ticket) return;
+            currentTicketId = id;
+
+            document.getElementById('detailId').innerText = `#INC-${ticket.id.toString().padStart(4, '0')}`;
+            document.getElementById('detailTitle').innerText = ticket.title;
+            document.getElementById('detailStatus').innerHTML = getStatusBadge(ticket.status);
+            document.getElementById('detailDesc').innerText = ticket.description;
+            document.getElementById('detailUser').innerText = ticket.user ? ticket.user.name : 'Unknown';
+            document.getElementById('detailCategory').innerText = ticket.category ? ticket.category.name : 'Unknown';
+            
+            if (currentUserRole > 1) {
+                document.getElementById('itActions').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'block';
+                document.getElementById('updateStatus').value = ticket.status;
+            } else {
+                document.getElementById('itActions').style.display = 'none';
+                document.getElementById('saveBtn').style.display = 'none';
+            }
+
+            const overlay = document.getElementById('detailsOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 10);
+        }
+
+        function closeDetailsModal() {
+            const overlay = document.getElementById('detailsOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 300);
+            currentTicketId = null;
+        }
+
+        async function saveTicketDetails() {
+            if (currentUserRole === 1 || !currentTicketId) return;
+            
+            const newStatus = document.getElementById('updateStatus').value;
+            const btn = document.getElementById('saveBtn');
+            btn.innerText = "Saving...";
+
+            try {
+                await fetch('/api/tickets/' + currentTicketId, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                closeDetailsModal();
+                loadTickets();
+            } catch (e) {}
+            btn.innerText = "Save Changes";
+        }
+    </script>
+</body>
+</html>
