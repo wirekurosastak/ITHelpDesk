@@ -1389,7 +1389,9 @@
         function showNewUserModal() {
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserEmail').value = '';
-            document.getElementById('newUserPassword').value = '';
+            const pwEl = document.getElementById('newUserPassword');
+            pwEl.value = '';
+            pwEl.type = 'password';
             document.getElementById('newUserRole').value = '1';
             syncCustomSelect('newUserRole');
             document.getElementById('newUserError').style.display = 'none';
@@ -1443,6 +1445,26 @@
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Create User';
+            }
+        }
+
+        function generateNewUserPassword() {
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+            let retVal = "";
+            for (let i = 0; i < 14; ++i) {
+                retVal += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            const el = document.getElementById('newUserPassword');
+            el.value = retVal;
+            el.type = 'text'; 
+            
+            const genBtn = document.getElementById('genPwBtn');
+            if (genBtn) {
+                const orig = genBtn.innerHTML;
+                genBtn.innerText = '✓ Generated';
+                setTimeout(() => {
+                    genBtn.innerHTML = orig;
+                }, 1500);
             }
         }
 

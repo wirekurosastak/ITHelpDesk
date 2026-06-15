@@ -725,8 +725,12 @@
                 <input type="email" id="newUserEmail" placeholder="user@company.com">
             </div>
             <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="newUserPassword" placeholder="Minimum 8 characters" minlength="8">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="margin-bottom:0;">Password</label>
+                    <a href="#" id="genPwBtn" onclick="generateNewUserPassword(); event.preventDefault();"
+                        style="color:var(--accent); font-size:0.75rem; text-decoration:none; opacity:0.8;">Generate</a>
+                </div>
+                <input type="password" id="newUserPassword" placeholder="Minimum 8 characters" minlength="8" style="margin-top:6px;">
             </div>
             <div class="input-group">
                 <label>Role</label>
