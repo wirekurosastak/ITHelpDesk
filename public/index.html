@@ -61,7 +61,7 @@
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <label style="margin-bottom:0;">Password</label>
                             <a href="#"
-                                onclick="alert('Please contact your IT administrator to reset your password.'); event.preventDefault();"
+                                onclick="showAuthTab('forgot'); event.preventDefault();"
                                 style="color:var(--accent); font-size:0.75rem; text-decoration:none; opacity:0.8;">Forgot
                                 password?</a>
                         </div>
@@ -119,6 +119,22 @@
                     New accounts require <strong>Admin approval</strong> before login is granted.<br>
                     Role upgrades can be done by an Admin.
                 </div>
+            </div>
+
+            <div id="authForgot" class="animate-tab" style="display: none;">
+                <h3 style="margin-top:0; font-size:1.1rem; text-align:center;">Forgotten Password</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px; line-height:1.5; text-align:center;">Enter your corporate email address to request a new password. An IT administrator will review and assign a new password for you.</p>
+                <form onsubmit="submitPasswordReset(event)">
+                    <div class="input-group">
+                        <label>Corporate Email</label>
+                        <input type="email" id="forgotEmail" placeholder="name@company.com" required>
+                    </div>
+                    <div id="forgotMsg" style="font-size: 0.875rem; margin-top: 12px; display: none; text-align: center;"></div>
+                    <div style="display:flex; gap:12px; margin-top:24px;">
+                        <button type="button" class="btn btn-secondary" style="flex:1;" onclick="showAuthTab('login')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" style="flex:1;" id="forgotSubmitBtn">Request Reset</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -720,6 +736,13 @@
                     Changes</button>
             </div>
             <div style="margin-top: 12px; text-align: center; display: none;" id="adminActions">
+                <button class="btn btn-secondary" id="resetTicketUserPwBtn" style="width: 100%; border-color: rgba(99, 102, 241, 0.4); color: var(--accent); margin-bottom: 8px; position: relative;" onclick="resetUserPasswordForTicket()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Generate New Password
+                </button>
                 <button class="btn"
                     style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 100%; border: 1px dashed var(--danger);"
                     onclick="deleteTicket()">

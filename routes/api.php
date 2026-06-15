@@ -9,8 +9,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
-    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::post('register', [AuthController::class, 'register'])->middleware('throttle:3,1');
+    Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
 
     Route::middleware('auth:api')->group(function (): void {
         Route::post('logout', [AuthController::class, 'logout']);
@@ -44,6 +45,7 @@ Route::middleware('auth:api')->group(function (): void {
         Route::patch('users/{user}/approve', [UserController::class, 'approve']);
         Route::post('users/{user}/force-logout', [UserController::class, 'forceLogout']);
         Route::post('users/{user}/suspend', [UserController::class, 'suspend']);
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword']);
         Route::apiResource('users', UserController::class)->except(['create', 'edit']);
     });
 });

@@ -93,6 +93,27 @@ class UserController extends Controller
         ]);
     }
 
+    public function resetPassword(\Illuminate\Http\Request $request, User $user): JsonResponse
+    {
+        if ($error = $this->targetManagementError($user, 'modify')) {
+            return $error;
+        }
+
+        $validated = $request->validate([
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($validated['password'])
+        ]);
+        
+        $this->userAdministration->forceLogout($user);
+
+        return response()->json([
+            'message' => "Password for user \"{$user->name}\" has been reset successfully."
+        ]);
+    }
+
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
         if ($error = $this->targetManagementError($user, 'modify')) {

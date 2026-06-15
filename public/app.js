@@ -368,14 +368,29 @@
 
         function showAuthTab(tab) {
             const isLogin = tab === 'login';
+            const isRegister = tab === 'register';
+            const isForgot = tab === 'forgot';
+
             document.getElementById('authLogin').style.display = isLogin ? 'block' : 'none';
-            document.getElementById('authRegister').style.display = isLogin ? 'none' : 'block';
-            document.getElementById('tabBtnLogin').style.background = isLogin ? 'var(--accent)' : 'transparent';
-            document.getElementById('tabBtnLogin').style.color = isLogin ? 'white' : 'var(--text-muted)';
-            document.getElementById('tabBtnRegister').style.background = isLogin ? 'transparent' : 'var(--accent)';
-            document.getElementById('tabBtnRegister').style.color = isLogin ? 'var(--text-muted)' : 'white';
+            document.getElementById('authRegister').style.display = isRegister ? 'block' : 'none';
+            document.getElementById('authForgot').style.display = isForgot ? 'block' : 'none';
+
+            if (!isForgot) {
+                document.getElementById('tabBtnLogin').style.background = isLogin ? 'var(--accent)' : 'transparent';
+                document.getElementById('tabBtnLogin').style.color = isLogin ? 'white' : 'var(--text-muted)';
+                document.getElementById('tabBtnRegister').style.background = isRegister ? 'var(--accent)' : 'transparent';
+                document.getElementById('tabBtnRegister').style.color = isRegister ? 'white' : 'var(--text-muted)';
+            } else {
+                const loginEmail = document.getElementById('email').value.trim();
+                if (loginEmail) {
+                    document.getElementById('forgotEmail').value = loginEmail;
+                }
+            }
+
             document.getElementById('loginError').style.display = 'none';
             document.getElementById('registerMsg').style.display = 'none';
+            const forgotMsg = document.getElementById('forgotMsg');
+            if (forgotMsg) forgotMsg.style.display = 'none';
         }
 
         async function registerUser(event) {
@@ -463,6 +478,50 @@
                 switchTab(tabToLoad);
             }
         });
+
+        async function submitPasswordReset(event) {
+            if (event) event.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            const msgEl = document.getElementById('forgotMsg');
+            const btn = document.getElementById('forgotSubmitBtn');
+
+            if (!email) {
+                msgEl.innerText = 'Please enter your corporate email address.';
+                msgEl.style.color = 'var(--danger)';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Submitting...';
+            msgEl.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                
+                msgEl.style.display = 'block';
+                if (response.ok) {
+                    msgEl.style.color = 'var(--success)';
+                    msgEl.innerText = data.message || 'Request submitted.';
+                    document.getElementById('forgotEmail').value = '';
+                } else {
+                    msgEl.style.color = 'var(--danger)';
+                    msgEl.innerText = data.message || 'Failed to submit request.';
+                }
+            } catch (error) {
+                msgEl.style.color = 'var(--danger)';
+                msgEl.innerText = 'Connection error. Please try again later.';
+                msgEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Request Reset';
+            }
+        }
 
         async function authenticate(event) {
             if (event) event.preventDefault();
@@ -977,6 +1036,18 @@
 
             if (currentUserRole === 3) {
                 document.getElementById('adminActions').style.display = 'block';
+                const resetBtn = document.getElementById('resetTicketUserPwBtn');
+                if (resetBtn) {
+                    resetBtn.style.display = ticket.title === 'Password Reset' ? 'inline-flex' : 'none';
+                    if (resetBtn.dataset.origHtml) {
+                        resetBtn.dataset.armed = 'false';
+                        resetBtn.innerHTML = resetBtn.dataset.origHtml;
+                        resetBtn.style.background = '';
+                        resetBtn.style.fontWeight = '';
+                        resetBtn.style.color = 'var(--accent)';
+                        resetBtn.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+                    }
+                }
             } else {
                 document.getElementById('adminActions').style.display = 'none';
             }
@@ -986,6 +1057,117 @@
             setTimeout(() => overlay.style.opacity = '1', 10);
         }
 
+        async function resetUserPasswordForTicket() {
+            if (currentUserRole !== 3 || !currentTicketId) return;
+            const ticket = allTickets.find(t => t.id === currentTicketId);
+            if (!ticket || !ticket.user_id) {
+                alert('Cannot identify the user for this ticket.');
+                return;
+            }
+
+            const btn = document.getElementById('resetTicketUserPwBtn');
+
+            if (btn.dataset.armed === 'copied') {
+                const text = btn.dataset.newPw;
+                function onSuccess() {
+                    const origHtml = btn.innerHTML;
+                    btn.innerText = 'Copied!';
+                    btn.style.backgroundColor = 'var(--success)';
+                    btn.style.color = '#fff';
+                    setTimeout(() => {
+                        btn.innerHTML = origHtml;
+                        btn.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                        btn.style.color = 'var(--success)';
+                    }, 1000);
+                }
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).then(onSuccess).catch(err => console.error(err));
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try { document.execCommand('copy'); onSuccess(); } catch (err) { }
+                    document.body.removeChild(textArea);
+                }
+                return;
+            }
+
+            if (btn.dataset.armed !== 'true') {
+                const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+                let newPw = "";
+                for (let i = 0; i < 14; ++i) {
+                    newPw += charset.charAt(Math.floor(Math.random() * charset.length));
+                }
+
+                btn.dataset.armed = 'true';
+                btn.dataset.newPw = newPw;
+                const origHtml = btn.innerHTML;
+                btn.dataset.origHtml = origHtml;
+
+                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Confirm Reset?`;
+                btn.style.background = 'rgba(99, 102, 241, 0.1)';
+                btn.style.fontWeight = '700';
+
+                setTimeout(() => {
+                    if (btn.dataset.armed === 'true') {
+                        btn.dataset.armed = 'false';
+                        btn.innerHTML = btn.dataset.origHtml;
+                        btn.style.background = '';
+                        btn.style.fontWeight = '';
+                    }
+                }, 5000); 
+                return;
+            }
+
+            const newPw = btn.dataset.newPw;
+            btn.disabled = true;
+            btn.innerText = 'Resetting...';
+
+            try {
+                const response = await fetch('/api/users/' + ticket.user_id + '/reset-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer ' + authToken
+                    },
+                    body: JSON.stringify({ password: newPw })
+                });
+
+                if (response.ok) {
+                    document.getElementById('updateStatus').value = 'closed';
+                    syncCustomSelect('updateStatus');
+                    saveTicketDetails(false); 
+
+                    btn.dataset.armed = 'copied';
+                    btn.disabled = false;
+                    btn.innerHTML = `New password: <code style="margin-left: 6px; font-family: monospace; font-size: 1.1em; background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px;">${newPw}</code> <span style="font-size: 0.8em; margin-left: 4px; opacity: 0.8;">(click to copy)</span>`;
+                    btn.style.background = 'rgba(16, 185, 129, 0.1)';
+                    btn.style.color = 'var(--success)';
+                    btn.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                    btn.style.fontWeight = '600';
+                } else {
+                    const err = await response.json();
+                    alert(err.message || 'Failed to reset password.');
+                    btn.dataset.armed = 'false';
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.origHtml;
+                    btn.style.background = '';
+                    btn.style.fontWeight = '';
+                }
+            } catch (e) {
+                alert('Connection error.');
+                btn.dataset.armed = 'false';
+                btn.disabled = false;
+                btn.innerHTML = btn.dataset.origHtml;
+                btn.style.background = '';
+                btn.style.fontWeight = '';
+            }
+        }
+
         function closeDetailsModal() {
             const overlay = document.getElementById('detailsOverlay');
             overlay.style.opacity = '0';
@@ -993,7 +1175,7 @@
             currentTicketId = null;
         }
 
-        async function saveTicketDetails() {
+        async function saveTicketDetails(shouldClose = true) {
             if (currentUserRole === 1 || !currentTicketId) return;
 
             const newStatus = document.getElementById('updateStatus').value;
@@ -1020,7 +1202,9 @@
                     throw new Error(err.message || 'Update failed.');
                 }
 
-                closeDetailsModal();
+                if (shouldClose) {
+                    closeDetailsModal();
+                }
                 loadTickets();
             } catch (e) {
                 alert('Error saving ticket: ' + e.message);
@@ -1034,7 +1218,10 @@
             if (currentUserRole !== 3 || !currentTicketId) return;
 
             const ticketId = currentTicketId;
-            const btn = document.getElementById('adminActions').querySelector('button');
+            
+            const adminActionsDiv = document.getElementById('adminActions');
+            const btns = adminActionsDiv.querySelectorAll('button');
+            const btn = btns.length > 1 ? btns[1] : btns[0]; 
 
             if (btn.dataset.armed !== 'true') {
                 btn.dataset.armed = 'true';

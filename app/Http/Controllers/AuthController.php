@@ -16,8 +16,14 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'This email is not registered.'], 404);
+        }
+
         if (! $token = auth('api')->attempt($credentials)) {
-            return response()->json(['message' => 'Invalid email or password.'], 401);
+            return response()->json(['message' => 'Incorrect password. Please try again.'], 401);
         }
 
         $user = auth('api')->user();
@@ -84,6 +90,38 @@ class AuthController extends Controller
         $user->update(['password' => Hash::make($validated['password'])]);
 
         return response()->json(['message' => 'Password changed successfully.']);
+    }
+
+    public function forgotPassword(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'This email is not registered.'], 404);
+        }
+
+        $existingTicket = \App\Models\Ticket::where('user_id', $user->id)
+            ->where('title', 'Password Reset')
+            ->whereIn('status', ['open', 'in_progress'])
+            ->exists();
+
+        if (!$existingTicket) {
+            $accessCategory = \App\Models\Category::where('name', 'Access/Accounts')->first();
+            
+            \App\Models\Ticket::create([
+                'title' => 'Password Reset',
+                'description' => "User ({$user->email}) requested a password reset from the login screen.",
+                'status' => 'open',
+                'priority' => 'high',
+                'user_id' => $user->id,
+                'category_id' => $accessCategory ? $accessCategory->id : null,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Password reset request has been sent to the IT administrators.'
+        ]);
     }
 
     public function refresh(): JsonResponse
