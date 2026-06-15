@@ -65,7 +65,12 @@
                                 style="color:var(--accent); font-size:0.75rem; text-decoration:none; opacity:0.8;">Forgot
                                 password?</a>
                         </div>
-                        <input type="password" id="password" placeholder="••••••••" required style="margin-top:6px;">
+                        <div class="password-wrapper" style="margin-top:6px;">
+                            <input type="password" id="password" placeholder="••••••••" required>
+                            <div class="password-toggle" onclick="togglePasswordVisibility('password', this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </div>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-full">Sign In</button>
                 </form>
@@ -98,7 +103,12 @@
                     </div>
                     <div class="input-group">
                         <label>Password</label>
-                        <input type="password" id="regPassword" placeholder="Min. 8 characters" required minlength="8">
+                        <div class="password-wrapper">
+                            <input type="password" id="regPassword" placeholder="Min. 8 characters" required minlength="8">
+                            <div class="password-toggle" onclick="togglePasswordVisibility('regPassword', this)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </div>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary btn-full">Create Account</button>
                 </form>
@@ -553,8 +563,22 @@
             </div>
 
             
+            <div class="settings-section">
+                <div class="card glass">
+                    <div
+                        style="padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">
+                        Security</div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Change Password</div>
+                            <div class="settings-desc">Update your account password to keep your account secure</div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="openChangePasswordModal()">Update Password</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="adminOnlySettings" style="display:none;">
-                
                 <div class="settings-section">
                     <div class="card glass">
                         <div
@@ -730,7 +754,12 @@
                     <a href="#" id="genPwBtn" onclick="generateNewUserPassword(); event.preventDefault();"
                         style="color:var(--accent); font-size:0.75rem; text-decoration:none; opacity:0.8;">Generate</a>
                 </div>
-                <input type="password" id="newUserPassword" placeholder="Minimum 8 characters" minlength="8" style="margin-top:6px;">
+                <div class="password-wrapper" style="margin-top:6px;">
+                    <input type="password" id="newUserPassword" placeholder="Minimum 8 characters" minlength="8">
+                    <div class="password-toggle" onclick="togglePasswordVisibility('newUserPassword', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>Role</label>
@@ -767,15 +796,30 @@
             </div>
             <div class="input-group" style="margin-top:24px;">
                 <label>Current Password</label>
-                <input type="password" id="pwCurrent" placeholder="Enter your current password">
+                <div class="password-wrapper">
+                    <input type="password" id="pwCurrent" placeholder="Enter your current password">
+                    <div class="password-toggle" onclick="togglePasswordVisibility('pwCurrent', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>New Password</label>
-                <input type="password" id="pwNew" placeholder="At least 8 characters" minlength="8">
+                <div class="password-wrapper">
+                    <input type="password" id="pwNew" placeholder="At least 8 characters" minlength="8">
+                    <div class="password-toggle" onclick="togglePasswordVisibility('pwNew', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </div>
+                </div>
             </div>
             <div class="input-group">
                 <label>Confirm New Password</label>
-                <input type="password" id="pwConfirm" placeholder="Repeat new password">
+                <div class="password-wrapper">
+                    <input type="password" id="pwConfirm" placeholder="Repeat new password">
+                    <div class="password-toggle" onclick="togglePasswordVisibility('pwConfirm', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </div>
+                </div>
             </div>
             <div id="pwError" style="font-size:0.875rem; color:var(--danger);  margin-top:8px; display:none;"></div>
             <div id="pwSuccess" style="font-size:0.875rem; color:var(--success); margin-top:8px; display:none;"></div>
