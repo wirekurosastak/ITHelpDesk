@@ -590,36 +590,9 @@
                 });
             } catch (e) { }
 
-            authToken = "";
-            sessionStorage.removeItem('nexus_token');
-            sessionStorage.removeItem('nexus_role');
-            sessionStorage.removeItem('nexus_name');
-            sessionStorage.removeItem('nexus_email');
-            sessionStorage.removeItem('nexus_user_id');
-
-            const emptyRow = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No data loaded.</td></tr>';
-            document.getElementById('ticketTableBody').innerHTML = emptyRow;
-            document.getElementById('requestTableBody').innerHTML = emptyRow;
-            document.getElementById('pendingTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">No pending registrations.</td></tr>';
-            document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Loading...</td></tr>';
-            updatePendingBadge(0);
-            document.getElementById('nav-users').style.display = 'none';
-            document.getElementById('nav-settings').style.display = 'none';
-
-
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            showAuthTab('login');
-
-
-            if (statusUptimeInterval) { clearInterval(statusUptimeInterval); statusUptimeInterval = null; }
-            if (usersRefreshInterval) { clearInterval(usersRefreshInterval); usersRefreshInterval = null; }
-            stopHeartbeat();
-
-            const overlay = document.getElementById('loginOverlay');
-            overlay.style.display = 'flex';
-            setTimeout(() => overlay.style.opacity = '1', 10);
-            document.querySelector('#loginOverlay .btn-primary').innerText = "Sign In";
+            sessionStorage.clear();
+            localStorage.removeItem('nexus_tab'); 
+            window.location.reload();
         }
 
         function getStatusBadge(status) {
